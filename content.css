@@ -1,0 +1,107 @@
+.hw-hidden {
+  display: none !important;
+}
+
+.hw-section-hidden {
+  display: none !important;
+}
+
+.hw-mark-btn {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.hw-mark-btn:hover {
+  opacity: 1;
+  background: rgba(204, 0, 0, 0.9);
+}
+
+.hw-mark-btn-short {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+  vertical-align: middle;
+  opacity: 0.7;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.hw-mark-btn-short:hover {
+  opacity: 1;
+  color: #c00;
+}
+
+.hw-manual-hide > *:not(.hw-undo-card) {
+  visibility: hidden !important;
+}
+
+.hw-manual-hide {
+  position: relative;
+}
+
+.hw-undo-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #f2f2f2;
+  border-radius: 12px;
+  z-index: 2000;
+}
+
+html[dark] .hw-undo-card {
+  background: #272727;
+}
+
+.hw-undo-text {
+  color: #606060;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+}
+
+html[dark] .hw-undo-text {
+  color: #aaa;
+}
+
+.hw-undo-btn {
+  background: none;
+  border: 1px solid #065fd4;
+  color: #065fd4;
+  padding: 6px 16px;
+  border-radius: 18px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+}
+
+.hw-undo-btn:hover {
+  background: rgba(6, 95, 212, 0.1);
+}
