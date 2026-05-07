@@ -22,6 +22,7 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 | Channel videos (`/@channel`, `/@channel/videos`) | Yes |
 | Channel streams (`/@channel/streams`) | Yes |
 | Shorts shelves on the above pages | Yes |
+| Subscriptions Shorts tab (`/feed/subscriptions/shorts`) | Manual marking only |
 | Watch page, Search, Playlists | No (not applicable) |
 
 ## Installation
@@ -60,6 +61,8 @@ This extension works on desktop Chromium-based browsers: Chrome, Edge, Brave, He
 ## Shorts caveat
 
 YouTube Shorts don't consistently display progress bars on their thumbnails, so the extension can't always auto-detect which Shorts you've watched. You can still manually mark Shorts as watched using the eye icon or the "Mark All Watched" button in the popup.
+
+On the Subscriptions Shorts tab (`/feed/subscriptions/shorts`), Shorts have no timestamp or progress metadata, so auto-hide by age and watch status are not available — only manual marking works there.
 
 ## How it works
 

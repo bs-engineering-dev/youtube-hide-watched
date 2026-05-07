@@ -42,14 +42,14 @@
   function isTargetPage() {
     const path = location.pathname;
     if (path === '/' || path === '') return true;
-    if (path === '/feed/subscriptions') return true;
+    if (path === '/feed/subscriptions' || path === '/feed/subscriptions/shorts') return true;
     if (/^\/@[^/]+(\/videos|\/streams)?\/?$/.test(path)) return true;
     if (/^\/(channel|c|user)\/[^/]+(\/videos|\/streams)?\/?$/.test(path)) return true;
     return false;
   }
 
   function isSubscriptionsPage() {
-    return location.pathname === '/feed/subscriptions';
+    return location.pathname.startsWith('/feed/subscriptions');
   }
 
   function onNavigate() {
@@ -334,11 +334,15 @@
 
     if (isShort) {
       const subhead = el.querySelector('.shortsLockupViewModelHostOutsideMetadataSubhead');
-      if (!subhead) return;
-      btn.className = 'hw-mark-btn-short';
-      btn.innerHTML = eyeIcon;
-      subhead.appendChild(btn);
-    } else {
+      if (subhead) {
+        btn.className = 'hw-mark-btn-short';
+        btn.innerHTML = eyeIcon;
+        subhead.appendChild(btn);
+        return;
+      }
+    }
+
+    {
       const container =
         el.querySelector('yt-thumbnail-view-model') ||
         el.querySelector('ytd-thumbnail') ||

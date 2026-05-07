@@ -38,7 +38,7 @@ Works on desktop Chromium-based browsers: Chrome, Edge, Brave, Helium, Opera, an
 
 **A note about Shorts**
 
-YouTube Shorts don't consistently show progress bars on their thumbnails, so auto-detection of watched Shorts is limited. You can still mark Shorts as watched manually using the eye icon or the "Mark All Watched" button.
+YouTube Shorts don't consistently show progress bars on their thumbnails, so auto-detection of watched Shorts is limited. You can still mark Shorts as watched manually using the eye icon or the "Mark All Watched" button. On the Subscriptions Shorts tab, only manual marking is available — Shorts there have no timestamp or watch progress metadata for the extension to read.
 
 **Privacy**
 
