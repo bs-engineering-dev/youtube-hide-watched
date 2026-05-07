@@ -73,6 +73,26 @@ Manually marked videos are stored in Chrome's local storage. Your enabled/thresh
 | `activeTab` | Send "mark all watched" command to the current YouTube tab |
 | Host access (`youtube.com`) | Inject the content script that detects and hides watched videos |
 
+## Development
+
+### Prerequisites
+
+- [Bun](https://bun.sh/) (v1.3+)
+
+### Setup
+
+```sh
+bun install
+```
+
+### Running tests
+
+```sh
+bun run test
+```
+
+Tests use Playwright to launch Chromium with the extension loaded. Some tests that hit live YouTube pages will skip on fresh browser profiles without login/consent.
+
 ## License
 
 MIT
