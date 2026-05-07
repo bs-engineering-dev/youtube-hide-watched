@@ -18,7 +18,7 @@ jobs:
 
       - run: bunx playwright install chromium --with-deps
 
-      - run: bunx playwright test
+      - run: xvfb-run bunx playwright test
 
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -41,7 +41,7 @@ jobs:
           mkdir -p dist
           zip -r dist/youtube-hide-watched-${{ github.ref_name }}.zip \
             manifest.json background.js content.js content.css \
-            popup.html popup.js options.html options.js icons/
+            popup.html popup.js icons/
 
       - uses: softprops/action-gh-release@v2
         with:

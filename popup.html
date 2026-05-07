@@ -3,7 +3,7 @@
 <head>
 <style>
   body {
-    width: 220px;
+    width: 280px;
     padding: 16px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
@@ -54,16 +54,6 @@
   input:checked + .slider::before {
     transform: translateX(18px);
   }
-  .footer {
-    margin-top: 12px;
-    font-size: 11px;
-    color: #888;
-  }
-  .footer a {
-    color: #555;
-    cursor: pointer;
-    text-decoration: underline;
-  }
   .mark-all-btn {
     width: 100%;
     margin-top: 12px;
@@ -84,6 +74,72 @@
     background: #888;
     cursor: default;
   }
+  .divider {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 12px 0;
+  }
+  .field {
+    margin-bottom: 12px;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .hint {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+  }
+  input[type="range"] {
+    width: 100%;
+    margin: 0;
+  }
+  .threshold-val {
+    font-weight: 600;
+  }
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .checkbox-label input {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+  }
+  .cache-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cache-row span {
+    font-size: 13px;
+  }
+  .clear-btn {
+    background: none;
+    border: 1px solid #ccc;
+    color: #555;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .clear-btn:hover {
+    background: #f5f5f5;
+    border-color: #aaa;
+  }
+  .status {
+    font-size: 11px;
+    color: #090;
+    margin-top: 4px;
+    min-height: 14px;
+  }
 </style>
 </head>
 <body>
@@ -96,9 +152,25 @@
     </label>
   </div>
   <button class="mark-all-btn" id="markAll">Mark All Watched</button>
-  <div class="footer">
-    <a id="options">Settings</a>
+  <hr class="divider">
+  <div class="field">
+    <label>Watch threshold: <span class="threshold-val" id="threshold-display">1%</span></label>
+    <input type="range" id="threshold" min="1" max="100" value="1">
+    <div class="hint">Hide videos watched past this percentage</div>
   </div>
+  <div class="field">
+    <label class="checkbox-label">
+      <input type="checkbox" id="hideMostRelevant" checked>
+      Hide "Most relevant" section
+    </label>
+  </div>
+  <div class="field">
+    <div class="cache-row">
+      <span id="cache-count">0 videos cached</span>
+      <button class="clear-btn" id="clear-cache">Clear cache</button>
+    </div>
+  </div>
+  <div class="status" id="status"></div>
   <script src="popup.js"></script>
 </body>
 </html>

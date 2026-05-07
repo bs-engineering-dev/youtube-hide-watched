@@ -32,12 +32,12 @@ test('mark all shows "No videos found" on non-youtube page', async ({ context, e
   await expect(btn).toBeDisabled();
 });
 
-test('options threshold slider updates display', async ({ context, extensionId }) => {
-  const options = await context.newPage();
-  await options.goto(`chrome-extension://${extensionId}/options.html`);
+test('threshold slider updates display', async ({ context, extensionId }) => {
+  const popup = await context.newPage();
+  await popup.goto(`chrome-extension://${extensionId}/popup.html`);
 
-  const slider = options.locator('#threshold');
-  const display = options.locator('#threshold-display');
+  const slider = popup.locator('#threshold');
+  const display = popup.locator('#threshold-display');
 
   await expect(display).toHaveText('1%');
 
@@ -46,11 +46,11 @@ test('options threshold slider updates display', async ({ context, extensionId }
   await expect(display).toHaveText('50%');
 });
 
-test('options clear cache resets count', async ({ context, extensionId }) => {
-  const options = await context.newPage();
-  await options.goto(`chrome-extension://${extensionId}/options.html`);
+test('clear cache resets count', async ({ context, extensionId }) => {
+  const popup = await context.newPage();
+  await popup.goto(`chrome-extension://${extensionId}/popup.html`);
 
-  await expect(options.locator('#cache-count')).toHaveText('0 videos cached');
-  await options.locator('#clear-cache').click();
-  await expect(options.locator('#status')).toHaveText('Cache cleared');
+  await expect(popup.locator('#cache-count')).toHaveText('0 videos cached');
+  await popup.locator('#clear-cache').click();
+  await expect(popup.locator('#status')).toHaveText('Cache cleared');
 });
