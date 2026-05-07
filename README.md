@@ -8,6 +8,7 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 - **Adjustable watch threshold** — choose the minimum percentage watched before a video is hidden (default: any progress)
 - **Mark as watched** button on video thumbnails to manually hide videos you don't want to see
 - **Mark All Watched** button in the popup to hide every visible video on the page at once
+- **Subscriptions max age** — hide videos older than a configurable number of days on the Subscriptions page, and automatically stop loading more once everything is past the cutoff
 - **Hide "Most relevant" section** on the Subscriptions page (optional, on by default)
 - **Undo support** — accidentally mark something? An undo card appears for 60 seconds
 - **Dark mode** support — follows YouTube's theme
@@ -46,8 +47,9 @@ Install directly from the [Chrome Web Store listing](#).
 
 **Per-video control** — Hover over any unwatched video's thumbnail to reveal the mark-as-watched button (eye icon).
 
-**Settings** (via the popup or right-click the extension icon > Options):
+**Settings** (all accessible from the popup):
 - **Watch threshold** — Percentage of a video that must be watched before it's hidden (1%–100%)
+- **Subscriptions max age** — Hide videos older than 1–90 days on the Subscriptions page (0 = off). When enabled, infinite scroll stops once all loading videos are past the cutoff.
 - **Hide "Most relevant"** — Toggle the "Most relevant" section on the Subscriptions page
 - **Clear cache** — Remove all manually marked videos
 

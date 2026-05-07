@@ -105,3 +105,15 @@ html[dark] .hw-undo-text {
 .hw-undo-btn:hover {
   background: rgba(6, 95, 212, 0.1);
 }
+
+.hw-age-cutoff-banner {
+  text-align: center;
+  padding: 24px 16px;
+  color: #606060;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+}
+
+html[dark] .hw-age-cutoff-banner {
+  color: #aaa;
+}

@@ -26,6 +26,7 @@ The extension detects YouTube's built-in progress bars on video thumbnails. If a
 - "Mark All Watched" button to clear your entire feed at once
 - Mark individual videos as watched with the eye icon on any thumbnail
 - Adjustable watch threshold — set the minimum percentage before a video is hidden
+- Subscriptions max age — hide videos older than a set number of days and stop loading more once everything is past the cutoff
 - Optionally hide the "Most relevant" section on Subscriptions
 - Undo support when you accidentally mark a video
 - Works with YouTube's dark mode

@@ -46,6 +46,28 @@ test('threshold slider updates display', async ({ context, extensionId }) => {
   await expect(display).toHaveText('50%');
 });
 
+test('max age slider updates display', async ({ context, extensionId }) => {
+  const popup = await context.newPage();
+  await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+
+  const slider = popup.locator('#maxAgeDays');
+  const display = popup.locator('#maxage-display');
+
+  await expect(display).toHaveText('Off');
+
+  await slider.fill('7');
+  await slider.dispatchEvent('input');
+  await expect(display).toHaveText('7 days');
+
+  await slider.fill('1');
+  await slider.dispatchEvent('input');
+  await expect(display).toHaveText('1 day');
+
+  await slider.fill('0');
+  await slider.dispatchEvent('input');
+  await expect(display).toHaveText('Off');
+});
+
 test('clear cache resets count', async ({ context, extensionId }) => {
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${extensionId}/popup.html`);

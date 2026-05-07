@@ -12,19 +12,20 @@
   const DEBOUNCE_MS = 300;
   const UNDO_MS = 60000;
 
-  let config = { enabled: true, threshold: 1, hideMostRelevant: true };
+  let config = { enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true };
   let cache = {};
   let observer = null;
   let debounceTimer = null;
   let driftInterval = null;
+  let scrollCutoff = false;
 
   async function init() {
     try {
       const [syncData, localData] = await Promise.all([
-        chrome.storage.sync.get({ enabled: true, threshold: 1, hideMostRelevant: true }),
+        chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true }),
         chrome.storage.local.get({ cache: {} }),
       ]);
-      config = { enabled: syncData.enabled, threshold: syncData.threshold, hideMostRelevant: syncData.hideMostRelevant };
+      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant };
       cache = localData.cache;
     } catch (e) {
       // defaults already set
@@ -47,7 +48,13 @@
     return false;
   }
 
+  function isSubscriptionsPage() {
+    return location.pathname === '/feed/subscriptions';
+  }
+
   function onNavigate() {
+    scrollCutoff = false;
+    removeAgeCutoffBanner();
     if (isTargetPage()) {
       attachObserver();
       startDriftCheck();
@@ -63,6 +70,11 @@
     if (area === 'sync') {
       if (changes.enabled) config.enabled = changes.enabled.newValue;
       if (changes.threshold) config.threshold = changes.threshold.newValue;
+      if (changes.maxAgeDays) {
+        config.maxAgeDays = changes.maxAgeDays.newValue;
+        scrollCutoff = false;
+        removeAgeCutoffBanner();
+      }
       if (changes.hideMostRelevant) config.hideMostRelevant = changes.hideMostRelevant.newValue;
       if (isTargetPage()) scheduleScan();
     }
@@ -137,6 +149,7 @@
     document.querySelectorAll(VIDEO_SELECTOR).forEach(processVideo);
     if (config.enabled) expandShortsIfNeeded();
     pruneEmptySections();
+    if (config.maxAgeDays && isSubscriptionsPage()) checkAgeCutoff();
   }
 
   function expandShortsIfNeeded() {
@@ -223,6 +236,41 @@
     return -1;
   }
 
+  function parseAgeDays(text) {
+    if (!text) return -1;
+    const t = text.toLowerCase().replace(/^streamed\s+/, '');
+    const m = t.match(/(\d+)\s+(second|minute|hour|day|week|month|year)/);
+    if (!m) return -1;
+    const n = parseInt(m[1], 10);
+    switch (m[2]) {
+      case 'second':
+      case 'minute':
+      case 'hour': return 0;
+      case 'day': return n;
+      case 'week': return n * 7;
+      case 'month': return n * 30;
+      case 'year': return n * 365;
+      default: return -1;
+    }
+  }
+
+  function getVideoAgeDays(el) {
+    const spans = el.querySelectorAll(
+      '.ytContentMetadataViewModelMetadataText, #metadata-line span, .inline-metadata-item, ytd-video-meta-block span'
+    );
+    for (const span of spans) {
+      const age = parseAgeDays(span.textContent.trim());
+      if (age >= 0) return age;
+    }
+    return -1;
+  }
+
+  function isTooOld(el) {
+    if (!config.maxAgeDays || !isSubscriptionsPage()) return false;
+    const age = getVideoAgeDays(el);
+    return age >= 0 && age > config.maxAgeDays;
+  }
+
   function isWatched(el, id) {
     if (id && cache[id]) return true;
 
@@ -236,6 +284,19 @@
   function processVideo(el) {
     if (el.classList.contains('hw-manual-hide')) return;
     const id = extractVideoId(el);
+
+    if (isTooOld(el)) {
+      el.classList.add('hw-hidden');
+      el.dataset.hwAgeHidden = '1';
+      el.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
+      return;
+    }
+
+    if (el.dataset.hwAgeHidden) {
+      delete el.dataset.hwAgeHidden;
+      el.classList.remove('hw-hidden');
+    }
+
     if (isWatched(el, id)) {
       if (config.enabled) {
         el.classList.add('hw-hidden');
@@ -341,6 +402,43 @@
     });
   }
 
+  function checkAgeCutoff() {
+    if (scrollCutoff) return;
+    const videos = document.querySelectorAll(VIDEO_SELECTOR);
+    if (videos.length < 10) return;
+
+    const tail = Array.from(videos).slice(-10);
+    const allOld = tail.every((el) => {
+      const age = getVideoAgeDays(el);
+      return age >= 0 && age > config.maxAgeDays;
+    });
+
+    if (allOld) {
+      scrollCutoff = true;
+      const continuation = document.querySelector('ytd-continuation-item-renderer');
+      if (continuation) continuation.style.display = 'none';
+      showAgeCutoffBanner();
+    }
+  }
+
+  function showAgeCutoffBanner() {
+    removeAgeCutoffBanner();
+    const container = document.querySelector('ytd-rich-grid-renderer, ytd-section-list-renderer');
+    if (!container) return;
+    const banner = document.createElement('div');
+    banner.className = 'hw-age-cutoff-banner';
+    banner.textContent = `Only showing videos from the last ${config.maxAgeDays} day${config.maxAgeDays !== 1 ? 's' : ''}`;
+    container.appendChild(banner);
+  }
+
+  function removeAgeCutoffBanner() {
+    document.querySelectorAll('.hw-age-cutoff-banner').forEach((e) => e.remove());
+    if (!scrollCutoff) {
+      const continuation = document.querySelector('ytd-continuation-item-renderer');
+      if (continuation) continuation.style.display = '';
+    }
+  }
+
   function onMessage(msg, _sender, sendResponse) {
     if (msg.action === 'markAllWatched') {
       const count = markAllVisible();
@@ -371,6 +469,9 @@
     document.querySelectorAll('.hw-hidden').forEach((e) =>
       e.classList.remove('hw-hidden')
     );
+    document.querySelectorAll('[data-hw-age-hidden]').forEach((e) =>
+      delete e.dataset.hwAgeHidden
+    );
     document.querySelectorAll('.hw-section-hidden').forEach((e) => {
       if (e.dataset.hwForceHidden) return;
       e.classList.remove('hw-section-hidden');
@@ -378,6 +479,8 @@
     document.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short, .hw-undo-card').forEach((e) =>
       e.remove()
     );
+    scrollCutoff = false;
+    removeAgeCutoffBanner();
   }
 
   init();
