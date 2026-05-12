@@ -5,6 +5,7 @@ const display = document.getElementById('threshold-display');
 const maxAgeDays = document.getElementById('maxAgeDays');
 const maxAgeDisplay = document.getElementById('maxage-display');
 const hideMostRelevant = document.getElementById('hideMostRelevant');
+const iconOnThumbnail = document.getElementById('iconOnThumbnail');
 const cacheCount = document.getElementById('cache-count');
 const clearBtn = document.getElementById('clear-cache');
 const status = document.getElementById('status');
@@ -13,13 +14,14 @@ function formatMaxAge(val) {
   return val === 0 ? 'Off' : val + ' day' + (val !== 1 ? 's' : '');
 }
 
-chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true }, (data) => {
+chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, iconOnThumbnail: false }, (data) => {
   toggle.checked = data.enabled;
   threshold.value = data.threshold;
   display.textContent = data.threshold + '%';
   maxAgeDays.value = data.maxAgeDays;
   maxAgeDisplay.textContent = formatMaxAge(data.maxAgeDays);
   hideMostRelevant.checked = data.hideMostRelevant;
+  iconOnThumbnail.checked = data.iconOnThumbnail;
 });
 
 chrome.storage.local.get({ cache: {} }, (data) => {
@@ -67,6 +69,11 @@ maxAgeDays.addEventListener('change', () => {
 
 hideMostRelevant.addEventListener('change', () => {
   chrome.storage.sync.set({ hideMostRelevant: hideMostRelevant.checked });
+  flash('Saved');
+});
+
+iconOnThumbnail.addEventListener('change', () => {
+  chrome.storage.sync.set({ iconOnThumbnail: iconOnThumbnail.checked });
   flash('Saved');
 });
 

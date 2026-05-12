@@ -12,7 +12,7 @@
   const DEBOUNCE_MS = 300;
   const UNDO_MS = 60000;
 
-  let config = { enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true };
+  let config = { enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, iconOnThumbnail: false };
   let cache = {};
   let observer = null;
   let debounceTimer = null;
@@ -22,10 +22,10 @@
   async function init() {
     try {
       const [syncData, localData] = await Promise.all([
-        chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true }),
+        chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, iconOnThumbnail: false }),
         chrome.storage.local.get({ cache: {} }),
       ]);
-      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant };
+      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, iconOnThumbnail: syncData.iconOnThumbnail };
       cache = localData.cache;
     } catch (e) {
       // defaults already set
@@ -76,6 +76,10 @@
         removeAgeCutoffBanner();
       }
       if (changes.hideMostRelevant) config.hideMostRelevant = changes.hideMostRelevant.newValue;
+      if (changes.iconOnThumbnail) {
+        config.iconOnThumbnail = changes.iconOnThumbnail.newValue;
+        document.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
+      }
       if (isTargetPage()) scheduleScan();
     }
     if (area === 'local' && changes.cache) {
@@ -145,6 +149,10 @@
 
   function scan() {
     if (!isTargetPage()) return;
+    if (scrollCutoff) {
+      removeContinuation();
+      return;
+    }
     hideMostRelevantSection();
     document.querySelectorAll(VIDEO_SELECTOR).forEach(processVideo);
     if (config.enabled) expandShortsIfNeeded();
@@ -342,6 +350,30 @@
       }
     }
 
+    if (!config.iconOnThumbnail) {
+      let metadataLine = el.querySelector('#metadata-line');
+      if (!metadataLine) {
+        const metaTexts = el.querySelectorAll('.ytContentMetadataViewModelMetadataText');
+        for (const span of metaTexts) {
+          if (/view/i.test(span.textContent)) {
+            metadataLine = span.closest('.ytContentMetadataViewModelMetadataRow') || span.parentElement;
+            break;
+          }
+        }
+      }
+      if (!metadataLine) {
+        metadataLine =
+          el.querySelector('.inline-metadata-item')?.parentElement ||
+          el.querySelector('ytd-video-meta-block');
+      }
+      if (metadataLine) {
+        btn.className = 'hw-mark-btn-short';
+        btn.innerHTML = eyeIcon;
+        metadataLine.appendChild(btn);
+        return;
+      }
+    }
+
     {
       const container =
         el.querySelector('yt-thumbnail-view-model') ||
@@ -407,40 +439,32 @@
   }
 
   function checkAgeCutoff() {
-    if (scrollCutoff) return;
-    const videos = document.querySelectorAll(VIDEO_SELECTOR);
-    if (videos.length < 10) return;
-
-    const tail = Array.from(videos).slice(-10);
-    const allOld = tail.every((el) => {
-      const age = getVideoAgeDays(el);
-      return age >= 0 && age > config.maxAgeDays;
-    });
-
-    if (allOld) {
+    const ageHidden = document.querySelectorAll('[data-hw-age-hidden]').length;
+    if (ageHidden >= 15) {
       scrollCutoff = true;
-      const continuation = document.querySelector('ytd-continuation-item-renderer');
-      if (continuation) continuation.style.display = 'none';
+      removeContinuation();
       showAgeCutoffBanner();
     }
   }
 
+  function removeContinuation() {
+    document.querySelectorAll('ytd-continuation-item-renderer').forEach((el) => {
+      el.remove();
+    });
+  }
+
   function showAgeCutoffBanner() {
     removeAgeCutoffBanner();
-    const container = document.querySelector('ytd-rich-grid-renderer, ytd-section-list-renderer');
-    if (!container) return;
+    const grid = document.querySelector('ytd-rich-grid-renderer, ytd-section-list-renderer');
+    if (!grid) return;
     const banner = document.createElement('div');
     banner.className = 'hw-age-cutoff-banner';
     banner.textContent = `Only showing videos from the last ${config.maxAgeDays} day${config.maxAgeDays !== 1 ? 's' : ''}`;
-    container.appendChild(banner);
+    grid.parentElement.insertBefore(banner, grid.nextSibling);
   }
 
   function removeAgeCutoffBanner() {
     document.querySelectorAll('.hw-age-cutoff-banner').forEach((e) => e.remove());
-    if (!scrollCutoff) {
-      const continuation = document.querySelector('ytd-continuation-item-renderer');
-      if (continuation) continuation.style.display = '';
-    }
   }
 
   function onMessage(msg, _sender, sendResponse) {
