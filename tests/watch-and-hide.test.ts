@@ -10,7 +10,7 @@ test('marking a video as watched hides it and shows undo', async ({ page }) => {
     return;
   }
 
-  const markBtns = page.locator('.hw-mark-btn');
+  const markBtns = page.locator('.hw-mark-btn, .hw-mark-btn-short');
   const btnCount = await markBtns.count();
   expect(btnCount).toBeGreaterThan(0);
 
@@ -29,7 +29,7 @@ test('undo restores a marked video', async ({ page }) => {
     return;
   }
 
-  const markBtns = page.locator('.hw-mark-btn');
+  const markBtns = page.locator('.hw-mark-btn, .hw-mark-btn-short');
   expect(await markBtns.count()).toBeGreaterThan(0);
 
   const countBefore = await markBtns.count();
@@ -39,7 +39,7 @@ test('undo restores a marked video', async ({ page }) => {
   await page.locator('.hw-undo-btn').first().click();
 
   await expect(page.locator('.hw-undo-card')).toHaveCount(0, { timeout: 3000 });
-  const countAfter = await page.locator('.hw-mark-btn').count();
+  const countAfter = await page.locator('.hw-mark-btn, .hw-mark-btn-short').count();
   expect(countAfter).toBe(countBefore);
 });
 

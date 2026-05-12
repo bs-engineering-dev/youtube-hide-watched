@@ -12,7 +12,7 @@
   const DEBOUNCE_MS = 300;
   const UNDO_MS = 60000;
 
-  let config = { enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, iconOnThumbnail: false };
+  let config = { enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, iconOnThumbnail: false };
   let cache = {};
   let observer = null;
   let debounceTimer = null;
@@ -22,10 +22,10 @@
   async function init() {
     try {
       const [syncData, localData] = await Promise.all([
-        chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, iconOnThumbnail: false }),
+        chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, iconOnThumbnail: false }),
         chrome.storage.local.get({ cache: {} }),
       ]);
-      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, iconOnThumbnail: syncData.iconOnThumbnail };
+      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, iconOnThumbnail: syncData.iconOnThumbnail };
       cache = localData.cache;
     } catch (e) {
       // defaults already set
@@ -76,6 +76,7 @@
         removeAgeCutoffBanner();
       }
       if (changes.hideMostRelevant) config.hideMostRelevant = changes.hideMostRelevant.newValue;
+      if (changes.hideLatest) config.hideLatest = changes.hideLatest.newValue;
       if (changes.iconOnThumbnail) {
         config.iconOnThumbnail = changes.iconOnThumbnail.newValue;
         document.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
@@ -188,8 +189,13 @@
       const title =
         sec.querySelector('h2') ||
         sec.querySelector('#title');
-      if (title && /most relevant/i.test(title.textContent.trim())) {
-        if (config.hideMostRelevant) {
+      if (!title) return;
+      const text = title.textContent.trim();
+      let shouldHide = null;
+      if (/most relevant/i.test(text)) shouldHide = config.hideMostRelevant;
+      else if (/^latest$/i.test(text)) shouldHide = config.hideLatest;
+      if (shouldHide !== null) {
+        if (shouldHide) {
           sec.classList.add('hw-section-hidden');
           sec.dataset.hwForceHidden = '1';
         } else {
@@ -391,7 +397,7 @@
     cache[id] = Date.now();
     chrome.storage.local.set({ cache });
 
-    el.querySelector('.hw-mark-btn')?.remove();
+    el.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
     el.classList.add('hw-manual-hide');
 
     const card = document.createElement('div');
