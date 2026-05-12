@@ -361,7 +361,7 @@
       if (!metadataLine) {
         const metaTexts = el.querySelectorAll('.ytContentMetadataViewModelMetadataText');
         for (const span of metaTexts) {
-          if (/view/i.test(span.textContent)) {
+          if (/view|watching/i.test(span.textContent)) {
             metadataLine = span.closest('.ytContentMetadataViewModelMetadataRow') || span.parentElement;
             break;
           }
