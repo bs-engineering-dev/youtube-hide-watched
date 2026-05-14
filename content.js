@@ -11,8 +11,11 @@
   const SECTION_SELECTOR = 'ytd-rich-section-renderer';
   const DEBOUNCE_MS = 300;
   const UNDO_MS = 60000;
+  const CACHE_EVICT_BYTES = 9_500_000;
+  const CACHE_TARGET_BYTES = 7_000_000;
+  const CACHE_CHECK_COUNT = 200_000;
 
-  let config = { enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, iconOnThumbnail: false };
+  let config = { enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false };
   let cache = {};
   let observer = null;
   let debounceTimer = null;
@@ -22,11 +25,12 @@
   async function init() {
     try {
       const [syncData, localData] = await Promise.all([
-        chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, iconOnThumbnail: false }),
+        chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false }),
         chrome.storage.local.get({ cache: {} }),
       ]);
-      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, iconOnThumbnail: syncData.iconOnThumbnail };
+      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, hideShorts: syncData.hideShorts, iconOnThumbnail: syncData.iconOnThumbnail };
       cache = localData.cache;
+      manageCacheSize();
     } catch (e) {
       // defaults already set
     }
@@ -77,6 +81,7 @@
       }
       if (changes.hideMostRelevant) config.hideMostRelevant = changes.hideMostRelevant.newValue;
       if (changes.hideLatest) config.hideLatest = changes.hideLatest.newValue;
+      if (changes.hideShorts) config.hideShorts = changes.hideShorts.newValue;
       if (changes.iconOnThumbnail) {
         config.iconOnThumbnail = changes.iconOnThumbnail.newValue;
         document.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
@@ -194,6 +199,7 @@
       let shouldHide = null;
       if (/most relevant/i.test(text)) shouldHide = config.hideMostRelevant;
       else if (/^latest$/i.test(text)) shouldHide = config.hideLatest;
+      else if (/shorts/i.test(text)) shouldHide = config.hideShorts;
       if (shouldHide !== null) {
         if (shouldHide) {
           sec.classList.add('hw-section-hidden');
@@ -361,7 +367,7 @@
       if (!metadataLine) {
         const metaTexts = el.querySelectorAll('.ytContentMetadataViewModelMetadataText');
         for (const span of metaTexts) {
-          if (/view|watching/i.test(span.textContent)) {
+          if (/view|watching|scheduled/i.test(span.textContent)) {
             metadataLine = span.closest('.ytContentMetadataViewModelMetadataRow') || span.parentElement;
             break;
           }
@@ -396,6 +402,7 @@
   function markWatched(el, id) {
     cache[id] = Date.now();
     chrome.storage.local.set({ cache });
+    manageCacheSize();
 
     el.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
     el.classList.add('hw-manual-hide');
@@ -494,9 +501,23 @@
     });
     if (count > 0) {
       chrome.storage.local.set({ cache });
+      manageCacheSize();
       pruneEmptySections();
     }
     return count;
+  }
+
+  function manageCacheSize() {
+    if (Object.keys(cache).length < CACHE_CHECK_COUNT) return;
+    const size = JSON.stringify(cache).length;
+    if (size <= CACHE_EVICT_BYTES) return;
+    const entries = Object.entries(cache).sort((a, b) => a[1] - b[1]);
+    const bytesPerEntry = size / entries.length;
+    const entriesToRemove = Math.ceil((size - CACHE_TARGET_BYTES) / bytesPerEntry);
+    for (let i = 0; i < entriesToRemove && i < entries.length; i++) {
+      delete cache[entries[i][0]];
+    }
+    chrome.storage.local.set({ cache });
   }
 
   function cleanupDOM() {

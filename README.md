@@ -10,6 +10,8 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 - **Mark All Watched** button in the popup to hide every visible video on the page at once
 - **Subscriptions max age** — hide videos older than a configurable number of days on the Subscriptions page, and automatically stop loading more once everything is past the cutoff
 - **Hide "Most relevant" section** on the Subscriptions page (optional, on by default)
+- **Hide "Latest" section** on the Subscriptions page (optional, on by default)
+- **Hide "Shorts" sections** on the home page and Subscriptions page (optional, off by default)
 - **Undo support** — accidentally mark something? An undo card appears for 60 seconds
 - **Dark mode** support — follows YouTube's theme
 
@@ -52,6 +54,8 @@ Install directly from the [Chrome Web Store listing](#).
 - **Watch threshold** — Percentage of a video that must be watched before it's hidden (1%–100%)
 - **Subscriptions max age** — Hide videos older than 1–90 days on the Subscriptions page (0 = off). When enabled, infinite scroll stops once all loading videos are past the cutoff.
 - **Hide "Most relevant"** — Toggle the "Most relevant" section on the Subscriptions page
+- **Hide "Latest"** — Toggle the "Latest" section on the Subscriptions page
+- **Hide "Shorts"** — Toggle Shorts sections on the home page and Subscriptions page
 - **Clear cache** — Remove all manually marked videos
 
 ## Browser compatibility

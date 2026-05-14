@@ -134,6 +134,41 @@
     background: #f5f5f5;
     border-color: #aaa;
   }
+  .cache-bar-row {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cache-bar {
+    flex: 1;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .cache-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: #16a34a;
+    width: 0%;
+    transition: width 0.3s, background 0.3s;
+  }
+  .cache-bar-label {
+    font-size: 11px;
+    color: #888;
+    white-space: nowrap;
+  }
+  .cache-warning {
+    font-size: 11px;
+    color: #92400e;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 4px;
+    padding: 6px 8px;
+    margin-top: 8px;
+    display: none;
+  }
   .status {
     font-size: 11px;
     color: #090;
@@ -177,6 +212,12 @@
   </div>
   <div class="field">
     <label class="checkbox-label">
+      <input type="checkbox" id="hideShorts">
+      Hide "Shorts" section
+    </label>
+  </div>
+  <div class="field">
+    <label class="checkbox-label">
       <input type="checkbox" id="iconOnThumbnail">
       Show hide icon on thumbnail
     </label>
@@ -187,7 +228,12 @@
       <span id="cache-count">0 videos cached</span>
       <button class="clear-btn" id="clear-cache">Clear cache</button>
     </div>
+    <div class="cache-bar-row">
+      <div class="cache-bar"><div class="cache-bar-fill" id="cache-bar-fill"></div></div>
+      <span class="cache-bar-label" id="cache-bar-label">0 MB / 10 MB</span>
+    </div>
   </div>
+  <div class="cache-warning" id="cache-warning">Cache is nearing the storage limit. Oldest entries will be auto-removed.</div>
   <div class="status" id="status"></div>
   <script src="popup.js"></script>
 </body>
