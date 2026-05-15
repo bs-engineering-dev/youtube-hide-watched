@@ -36,15 +36,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install
+
       - name: Build extension zip
-        env:
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          mkdir -p dist
-          zip -r "dist/youtube-hide-watched-${REF_NAME}.zip" \
-            manifest.json background.js content.js content.css \
-            popup.html popup.js icons/
+        run: bun run build
 
       - uses: softprops/action-gh-release@v2
         with:
-          files: dist/youtube-hide-watched-${{ github.ref_name }}.zip
+          files: dist/youtube-hide-watched-*.zip

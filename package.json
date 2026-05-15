@@ -2,6 +2,7 @@
   "name": "youtube-hide-watched",
   "private": true,
   "scripts": {
+    "build": "rm -rf dist && mkdir -p dist && VERSION=$(node -p \"require('./manifest.json').version\") && zip -r \"dist/youtube-hide-watched-v${VERSION}.zip\" manifest.json background.js content.js content.css popup.html popup.js icons/",
     "test": "bunx playwright test",
     "test:headed": "bunx playwright test --headed"
   },
