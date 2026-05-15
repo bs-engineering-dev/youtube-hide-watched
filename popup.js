@@ -22,7 +22,7 @@ function formatMaxAge(val) {
   return val === 0 ? 'Off' : val + ' day' + (val !== 1 ? 's' : '');
 }
 
-chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false }, (data) => {
+chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false }, (data) => {
   toggle.checked = data.enabled;
   threshold.value = data.threshold;
   display.textContent = data.threshold + '%';

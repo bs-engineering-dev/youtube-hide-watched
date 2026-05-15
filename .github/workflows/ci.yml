@@ -37,9 +37,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build extension zip
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           mkdir -p dist
-          zip -r dist/youtube-hide-watched-${{ github.ref_name }}.zip \
+          zip -r "dist/youtube-hide-watched-${REF_NAME}.zip" \
             manifest.json background.js content.js content.css \
             popup.html popup.js icons/
 

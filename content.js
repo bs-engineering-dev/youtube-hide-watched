@@ -15,7 +15,7 @@
   const CACHE_TARGET_BYTES = 7_000_000;
   const CACHE_CHECK_COUNT = 200_000;
 
-  let config = { enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false };
+  let config = { enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false };
   let cache = {};
   let observer = null;
   let debounceTimer = null;
@@ -25,7 +25,7 @@
   async function init() {
     try {
       const [syncData, localData] = await Promise.all([
-        chrome.storage.sync.get({ enabled: true, threshold: 1, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false }),
+        chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false }),
         chrome.storage.local.get({ cache: {} }),
       ]);
       config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, hideShorts: syncData.hideShorts, iconOnThumbnail: syncData.iconOnThumbnail };
@@ -347,16 +347,23 @@
       markWatched(el, id);
     });
 
-    const eyeIcon =
-      '<svg viewBox="0 0 24 24" width="20" height="20">' +
-      '<path fill="currentColor" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46A11.8 11.8 0 001 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>' +
-      '</svg>';
+    function createEyeIcon() {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('width', '20');
+      svg.setAttribute('height', '20');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('fill', 'currentColor');
+      path.setAttribute('d', 'M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46A11.8 11.8 0 001 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z');
+      svg.appendChild(path);
+      return svg;
+    }
 
     if (isShort) {
       const subhead = el.querySelector('.shortsLockupViewModelHostOutsideMetadataSubhead');
       if (subhead) {
         btn.className = 'hw-mark-btn-short';
-        btn.innerHTML = eyeIcon;
+        btn.appendChild(createEyeIcon());
         subhead.appendChild(btn);
         return;
       }
@@ -380,7 +387,7 @@
       }
       if (metadataLine) {
         btn.className = 'hw-mark-btn-short';
-        btn.innerHTML = eyeIcon;
+        btn.appendChild(createEyeIcon());
         metadataLine.appendChild(btn);
         return;
       }
@@ -394,7 +401,7 @@
       if (!container) return;
       container.style.position = 'relative';
       btn.className = 'hw-mark-btn';
-      btn.innerHTML = eyeIcon;
+      btn.appendChild(createEyeIcon());
       container.appendChild(btn);
     }
   }
@@ -409,14 +416,18 @@
 
     const card = document.createElement('div');
     card.className = 'hw-undo-card';
-    card.innerHTML =
-      '<span class="hw-undo-text">Video hidden</span>' +
-      '<button class="hw-undo-btn">Undo</button>';
+    const undoText = document.createElement('span');
+    undoText.className = 'hw-undo-text';
+    undoText.textContent = 'Video hidden';
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'hw-undo-btn';
+    undoBtn.textContent = 'Undo';
+    card.append(undoText, undoBtn);
     el.appendChild(card);
 
     let undone = false;
 
-    card.querySelector('.hw-undo-btn').addEventListener('click', () => {
+    undoBtn.addEventListener('click', () => {
       if (undone) return;
       undone = true;
       delete cache[id];
@@ -480,7 +491,8 @@
     document.querySelectorAll('.hw-age-cutoff-banner').forEach((e) => e.remove());
   }
 
-  function onMessage(msg, _sender, sendResponse) {
+  function onMessage(msg, sender, sendResponse) {
+    if (sender.id !== chrome.runtime.id) return;
     if (msg.action === 'markAllWatched') {
       const count = markAllVisible();
       sendResponse({ count });
