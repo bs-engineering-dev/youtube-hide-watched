@@ -32,6 +32,15 @@ The extension detects YouTube's built-in progress bars on video thumbnails. If a
 - Works with YouTube's dark mode
 - Settings sync across your Chrome devices
 
+**Pin it to your toolbar**
+
+For quick access, pin the extension to your browser toolbar:
+1. Click the puzzle piece icon (Extensions) in your browser toolbar
+2. Find "Hide Watched YouTube Videos" in the list
+3. Click the pin icon next to it
+
+Once pinned, you can toggle hiding and mark videos as watched with a single click.
+
 **Browser compatibility**
 
 Works on desktop Chromium-based browsers: Chrome, Edge, Brave, Helium, Opera, and others. Does not work on mobile browsers (mobile Chrome, Safari, etc.) as they do not support Chrome extensions.
