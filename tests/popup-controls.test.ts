@@ -39,7 +39,7 @@ test('threshold slider updates display', async ({ context, extensionId }) => {
   const slider = popup.locator('#threshold');
   const display = popup.locator('#threshold-display');
 
-  await expect(display).toHaveText('1%');
+  await expect(display).toHaveText('5%');
 
   await slider.fill('50');
   await slider.dispatchEvent('input');
