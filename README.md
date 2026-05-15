@@ -33,6 +33,10 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 
 Install directly from the [Chrome Web Store listing](#).
 
+### Report issues
+
+Found a bug or have a feature request? [Open an issue on GitHub](https://github.com/bs-engineering-dev/youtube-hide-watched/issues).
+
 ### From source
 
 1. Clone this repository
