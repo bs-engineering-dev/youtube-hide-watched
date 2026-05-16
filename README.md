@@ -106,6 +106,26 @@ bun run test
 
 Tests use Playwright to launch Chromium with the extension loaded. Some tests that hit live YouTube pages will skip on fresh browser profiles without login/consent.
 
+### Releasing
+
+1. Bump the `version` in `manifest.json`
+2. Commit the change
+3. Tag and push:
+   ```sh
+   git tag v1.x.x
+   git push origin main --tags
+   ```
+4. CI runs tests, builds the extension zip, and creates a GitHub Release with the artifact attached
+5. Download the zip from the release and upload it to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+
+### Regenerating store assets
+
+```sh
+node store-assets/generate.mjs
+```
+
+This uses Playwright to render and screenshot mock YouTube pages. Output goes to `store-assets/`.
+
 ## License
 
 MIT
