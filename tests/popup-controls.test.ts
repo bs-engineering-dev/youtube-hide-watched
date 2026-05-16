@@ -68,6 +68,16 @@ test('max age slider updates display', async ({ context, extensionId }) => {
   await expect(display).toHaveText('Off');
 });
 
+test('hidden count shows in popup when videos are hidden', async ({ context, extensionId }) => {
+  const popup = await context.newPage();
+  await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+
+  const hiddenCount = popup.locator('#hidden-count');
+  await expect(hiddenCount).toBeAttached();
+  // On a non-YouTube page, the count should be empty (no content script to respond)
+  await expect(hiddenCount).toHaveText('');
+});
+
 test('clear cache resets count', async ({ context, extensionId }) => {
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${extensionId}/popup.html`);

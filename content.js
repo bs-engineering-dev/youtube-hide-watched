@@ -385,6 +385,10 @@
           el.querySelector('.inline-metadata-item')?.parentElement ||
           el.querySelector('ytd-video-meta-block');
       }
+      if (!metadataLine) {
+        const rows = el.querySelectorAll('.ytContentMetadataViewModelMetadataRow');
+        if (rows.length) metadataLine = rows[rows.length - 1];
+      }
       if (metadataLine) {
         btn.className = 'hw-mark-btn-short';
         btn.appendChild(createEyeIcon());
@@ -496,6 +500,9 @@
     if (msg.action === 'markAllWatched') {
       const count = markAllVisible();
       sendResponse({ count });
+    }
+    if (msg.action === 'getHiddenCount') {
+      sendResponse({ count: document.querySelectorAll('.hw-hidden').length });
     }
     return false;
   }

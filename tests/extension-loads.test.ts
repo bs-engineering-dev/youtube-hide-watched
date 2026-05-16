@@ -17,4 +17,5 @@ test('popup renders with all controls', async ({ context, extensionId }) => {
   await expect(popup.locator('#hideMostRelevant')).toBeAttached();
   await expect(popup.locator('#clear-cache')).toBeVisible();
   await expect(popup.locator('#cache-count')).toHaveText('0 videos cached');
+  await expect(popup.locator('#hidden-count')).toBeAttached();
 });

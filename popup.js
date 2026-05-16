@@ -15,12 +15,26 @@ const cacheBarLabel = document.getElementById('cache-bar-label');
 const clearBtn = document.getElementById('clear-cache');
 const status = document.getElementById('status');
 
+const hiddenCount = document.getElementById('hidden-count');
+
 const CACHE_MAX_BYTES = 10_485_760;
 const CACHE_WARN_BYTES = 8_000_000;
 
 function formatMaxAge(val) {
   return val === 0 ? 'Off' : val + ' day' + (val !== 1 ? 's' : '');
 }
+
+(async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab?.id) {
+    try {
+      const resp = await chrome.tabs.sendMessage(tab.id, { action: 'getHiddenCount' });
+      if (resp?.count > 0) {
+        hiddenCount.textContent = `${resp.count} watched video${resp.count !== 1 ? 's' : ''} hidden`;
+      }
+    } catch {}
+  }
+})();
 
 chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false }, (data) => {
   toggle.checked = data.enabled;

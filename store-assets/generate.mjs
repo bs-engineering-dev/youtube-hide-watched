@@ -106,12 +106,8 @@ function screenshot1HTML() {
   const watchedCount = VIDEOS.length - unwatched.length;
   const cards = unwatched.map(v => `<div>${videoCardHTML(v, { showEyeBtn: true })}</div>`).join('');
   const grid = `
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+    <div style="display:flex; align-items:center; margin-bottom:16px;">
       <div style="font-size:14px; color:#606060;">Subscriptions</div>
-      <div style="display:flex; align-items:center; gap:6px; background:#f2f2f2; padding:5px 12px; border-radius:6px; font-size:13px; color:#606060;">
-        <img src="${iconDataUrl}" width="16" height="16" style="opacity:0.7;"/>
-        ${watchedCount} watched videos hidden
-      </div>
     </div>
     <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:20px 16px;">${cards}</div>`;
   return ytPageShell(grid, { annotation: 'Your subscriptions feed — only unwatched videos' });
@@ -120,7 +116,8 @@ function screenshot1HTML() {
 function screenshot2HTML() {
   const popupHTML = `
     <div style="width:300px; background:white; border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,0.25); padding:20px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; color:#1a1a1a;">
-      <div style="font-weight:600; margin-bottom:14px; font-size:15px;">Hide Watched</div>
+      <div style="font-weight:600; margin-bottom:8px; font-size:15px;">Hide Watched</div>
+      <div style="font-size:13px; color:#c00; font-weight:500; margin-bottom:12px;">6 watched videos hidden</div>
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
         <span>Hide watched videos</span>
         <div style="width:40px; height:22px; background:#c00; border-radius:22px; position:relative;">
@@ -262,12 +259,6 @@ function screenshot4HTML() {
           </div>
         </div>
         <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:14px 12px; transform:scale(0.92); transform-origin:top center;">${cardsAfter}</div>
-        <div style="position:absolute; bottom:24px; left:0; right:0; text-align:center;">
-          <div style="display:inline-flex; align-items:center; gap:6px; background:#f2f2f2; padding:5px 14px; border-radius:6px; font-size:13px; color:#606060;">
-            <img src="${iconDataUrl}" width="16" height="16" style="opacity:0.7;"/>
-            ${before.length - after.length} watched videos hidden
-          </div>
-        </div>
       </div>
     </div>
     <div style="position:absolute; bottom:16px; left:0; right:0; text-align:center;">
