@@ -47,3 +47,4 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: dist/youtube-hide-watched-*.zip
+          generate_release_notes: true
