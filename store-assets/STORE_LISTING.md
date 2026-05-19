@@ -51,7 +51,8 @@ YouTube Shorts don't consistently show progress bars on their thumbnails, so aut
 
 **Support & feedback**
 
-Found a bug or have a feature request? Report it on our GitHub Issues page linked on this store listing. We actively monitor and respond to issues.
+Found a bug or have a feature request? Open an issue on GitHub:
+https://github.com/bs-engineering-dev/youtube-hide-watched/
 
 **Privacy**
 
