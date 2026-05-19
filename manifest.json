@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Hide Watched YouTube Videos",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Hides watched videos from your YouTube subscriptions page, showing only unwatched content.",
   "homepage_url": "https://github.com/bs-engineering-dev/youtube-hide-watched/",
   "permissions": ["storage", "activeTab"],
