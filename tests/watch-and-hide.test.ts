@@ -75,3 +75,50 @@ test('marking all videos hides them all', async ({ page }) => {
   const manualHideCount = await page.locator('.hw-manual-hide').count();
   expect(manualHideCount).toBe(markedCount);
 });
+
+test('rapid marking preserves all IDs in storage', async ({ page, extensionId, context }) => {
+  await page.goto(YOUTUBE_VIDEO_PAGE, { waitUntil: 'domcontentloaded' });
+  const videosLoaded = await waitForVideos(page);
+  if (!videosLoaded) {
+    test.skip(true, 'YouTube did not render videos');
+    return;
+  }
+
+  // Collect video IDs and click all mark buttons rapidly
+  const markedIds = await page.evaluate(() => {
+    const ids: string[] = [];
+    document.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer').forEach(el => {
+      const btn = el.querySelector('.hw-mark-btn, .hw-mark-btn-short') as HTMLButtonElement | null;
+      if (!btn) return;
+      const a = el.querySelector('a[href*="/watch?v="]');
+      if (!a) return;
+      const m = a.getAttribute('href')?.match(/[?&]v=([^&#]+)/);
+      if (!m) return;
+      ids.push(m[1]);
+      btn.click();
+    });
+    return ids;
+  });
+
+  expect(markedIds.length).toBeGreaterThan(0);
+
+  // Wait for all storage writes to settle
+  await page.waitForTimeout(2000);
+
+  // Read the cache from storage via the extension's service worker
+  const sw = context.serviceWorkers().find(w => w.url().includes(extensionId));
+  expect(sw).toBeTruthy();
+
+  const cachedIds = await sw!.evaluate(() =>
+    new Promise<string[]>(resolve => {
+      chrome.storage.local.get({ cache: {} }, (data) => {
+        resolve(Object.keys(data.cache));
+      });
+    })
+  );
+
+  // Every marked ID should be in storage
+  for (const id of markedIds) {
+    expect(cachedIds, `ID ${id} missing from cache`).toContain(id);
+  }
+});
