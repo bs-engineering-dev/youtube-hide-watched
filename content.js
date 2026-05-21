@@ -21,6 +21,11 @@
   let debounceTimer = null;
   let driftInterval = null;
   let scrollCutoff = false;
+  let selfCacheWrite = false;
+
+  function isContextValid() {
+    return !!chrome.runtime?.id;
+  }
 
   async function init() {
     try {
@@ -89,8 +94,12 @@
       if (isTargetPage()) scheduleScan();
     }
     if (area === 'local' && changes.cache) {
-      cache = changes.cache.newValue || {};
-      if (isTargetPage()) scheduleScan();
+      if (selfCacheWrite) {
+        selfCacheWrite = false;
+      } else {
+        cache = changes.cache.newValue || {};
+        if (isTargetPage()) scheduleScan();
+      }
     }
   }
 
@@ -137,6 +146,7 @@
   function startDriftCheck() {
     stopDriftCheck();
     driftInterval = setInterval(() => {
+      if (!isContextValid()) { stopDriftCheck(); detachObserver(); cleanupDOM(); return; }
       if (isDrifted()) scheduleScan();
     }, 2000);
   }
@@ -154,6 +164,7 @@
   }
 
   function scan() {
+    if (!isContextValid()) return;
     if (!isTargetPage()) return;
     if (scrollCutoff) {
       removeContinuation();
@@ -412,6 +423,7 @@
 
   function markWatched(el, id) {
     cache[id] = Date.now();
+    selfCacheWrite = true;
     chrome.storage.local.set({ cache });
     manageCacheSize();
 
@@ -435,7 +447,8 @@
       if (undone) return;
       undone = true;
       delete cache[id];
-      chrome.storage.local.set({ cache });
+      selfCacheWrite = true;
+    chrome.storage.local.set({ cache });
       el.classList.remove('hw-manual-hide');
       card.remove();
       ensureMarkButton(el, id);
@@ -519,7 +532,8 @@
       count++;
     });
     if (count > 0) {
-      chrome.storage.local.set({ cache });
+      selfCacheWrite = true;
+    chrome.storage.local.set({ cache });
       manageCacheSize();
       pruneEmptySections();
     }
@@ -536,6 +550,7 @@
     for (let i = 0; i < entriesToRemove && i < entries.length; i++) {
       delete cache[entries[i][0]];
     }
+    selfCacheWrite = true;
     chrome.storage.local.set({ cache });
   }
 
