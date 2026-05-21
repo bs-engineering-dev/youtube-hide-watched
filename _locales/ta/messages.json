@@ -1,0 +1,145 @@
+{
+  "extName": {
+    "message": "பார்த்த YouTube வீடியோக்களை மறை",
+    "description": "Extension name shown in browser and store"
+  },
+  "extDescription": {
+    "message": "உங்கள் YouTube சந்தாக்கள் பக்கத்தில் பார்த்த வீடியோக்களை மறைத்து, பார்க்காத உள்ளடக்கத்தை மட்டும் காட்டுகிறது.",
+    "description": "Extension description shown in browser and store"
+  },
+  "hideWatchedVideos": {
+    "message": "பார்த்த வீடியோக்களை மறை",
+    "description": "Toggle label in popup"
+  },
+  "markAllWatched": {
+    "message": "அனைத்தையும் பார்த்ததாகக் குறி",
+    "description": "Button to mark all visible videos as watched"
+  },
+  "watchThreshold": {
+    "message": "பார்வை வரம்பு:",
+    "description": "Label for threshold slider"
+  },
+  "thresholdHint": {
+    "message": "இந்த சதவீதத்திற்கு மேல் பார்த்த வீடியோக்களை மறை",
+    "description": "Hint text below threshold slider"
+  },
+  "subsMaxAge": {
+    "message": "சந்தாக்கள் அதிகபட்ச காலம்:",
+    "description": "Label for max age slider"
+  },
+  "maxAgeHint": {
+    "message": "சந்தாக்களில் இதை விட பழைய வீடியோக்களை மறை (0 = முடக்கு)",
+    "description": "Hint text below max age slider"
+  },
+  "maxAgeOff": {
+    "message": "முடக்கு",
+    "description": "Displayed when max age is disabled"
+  },
+  "maxAgeDays": {
+    "message": "$COUNT$ $UNIT$",
+    "description": "Max age display like '7 days' or '1 day'",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "dayUnit": {
+    "message": "நாள்",
+    "description": "Singular day unit"
+  },
+  "daysUnit": {
+    "message": "நாட்கள்",
+    "description": "Plural days unit"
+  },
+  "hideMostRelevant": {
+    "message": "\"மிகவும் பொருத்தமான\" பகுதியை மறை",
+    "description": "Checkbox label"
+  },
+  "hideLatest": {
+    "message": "\"சமீபத்திய\" பகுதியை மறை",
+    "description": "Checkbox label"
+  },
+  "hideShorts": {
+    "message": "\"Shorts\" பகுதியை மறை",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnail": {
+    "message": "சிறுபடத்தில் மறைப்பு ஐகானைக் காட்டு",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnailHint": {
+    "message": "முடக்கியிருக்கும்போது, ஐகான் வீடியோ விவரங்களுக்கு அருகில் தோன்றும்",
+    "description": "Hint for icon placement option"
+  },
+  "videosCached": {
+    "message": "$COUNT$ $UNIT$ தற்காலிகமாகச் சேமிக்கப்பட்டன",
+    "description": "Cache count display",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "videoUnit": {
+    "message": "வீடியோ",
+    "description": "Singular video unit"
+  },
+  "videosUnit": {
+    "message": "வீடியோக்கள்",
+    "description": "Plural videos unit"
+  },
+  "clearCache": {
+    "message": "தற்காலிக சேமிப்பை அழி",
+    "description": "Button to clear the cache"
+  },
+  "cacheWarning": {
+    "message": "தற்காலிக சேமிப்பு சேமிப்பக வரம்பை நெருங்குகிறது. பழைய உள்ளீடுகள் தானாக நீக்கப்படும்.",
+    "description": "Warning shown when cache is almost full"
+  },
+  "cacheCleared": {
+    "message": "தற்காலிக சேமிப்பு அழிக்கப்பட்டது",
+    "description": "Status message after clearing cache"
+  },
+  "saved": {
+    "message": "சேமிக்கப்பட்டது",
+    "description": "Status message after saving a setting"
+  },
+  "markedCount": {
+    "message": "$COUNT$ குறிக்கப்பட்டன",
+    "description": "Shown after marking all videos",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "noVideosFound": {
+    "message": "வீடியோக்கள் எதுவும் கிடைக்கவில்லை",
+    "description": "Shown when mark all finds no videos"
+  },
+  "hiddenCount": {
+    "message": "$COUNT$ பார்த்த $UNIT$ மறைக்கப்பட்டன",
+    "description": "Hidden video count in popup",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "markAsWatched": {
+    "message": "பார்த்ததாகக் குறி",
+    "description": "Tooltip for the eye icon button"
+  },
+  "videoHidden": {
+    "message": "வீடியோ மறைக்கப்பட்டது",
+    "description": "Text shown in the undo card"
+  },
+  "undo": {
+    "message": "செயல்தவிர்",
+    "description": "Undo button text"
+  },
+  "ageCutoff": {
+    "message": "கடந்த $COUNT$ $UNIT$ வீடியோக்கள் மட்டுமே காட்டப்படுகின்றன",
+    "description": "Banner shown when age cutoff is active",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  }
+}

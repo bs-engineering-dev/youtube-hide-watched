@@ -1,4 +1,8 @@
 import { test, expect, YOUTUBE_VIDEO_PAGE, dismissConsent, waitForVideos } from './fixtures';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+const enMessages = JSON.parse(readFileSync(resolve(__dirname, '..', '_locales', 'en', 'messages.json'), 'utf-8'));
 
 test.describe.configure({ timeout: 120000 });
 
@@ -17,7 +21,7 @@ test('marking a video as watched hides it and shows undo', async ({ page }) => {
   await markBtns.first().click();
 
   await expect(page.locator('.hw-undo-card').first()).toBeVisible({ timeout: 3000 });
-  await expect(page.locator('.hw-undo-text').first()).toHaveText('Video hidden');
+  await expect(page.locator('.hw-undo-text').first()).toHaveText(enMessages.videoHidden.message);
   await expect(page.locator('.hw-undo-btn').first()).toBeVisible();
 });
 

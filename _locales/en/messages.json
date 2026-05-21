@@ -1,0 +1,145 @@
+{
+  "extName": {
+    "message": "Hide Watched YouTube Videos",
+    "description": "Extension name shown in browser and store"
+  },
+  "extDescription": {
+    "message": "Hides watched videos from your YouTube subscriptions page, showing only unwatched content.",
+    "description": "Extension description shown in browser and store"
+  },
+  "hideWatchedVideos": {
+    "message": "Hide watched videos",
+    "description": "Toggle label in popup"
+  },
+  "markAllWatched": {
+    "message": "Mark All Watched",
+    "description": "Button to mark all visible videos as watched"
+  },
+  "watchThreshold": {
+    "message": "Watch threshold:",
+    "description": "Label for threshold slider"
+  },
+  "thresholdHint": {
+    "message": "Hide videos watched past this percentage",
+    "description": "Hint text below threshold slider"
+  },
+  "subsMaxAge": {
+    "message": "Subscriptions max age:",
+    "description": "Label for max age slider"
+  },
+  "maxAgeHint": {
+    "message": "Hide videos older than this on Subscriptions (0 = off)",
+    "description": "Hint text below max age slider"
+  },
+  "maxAgeOff": {
+    "message": "Off",
+    "description": "Displayed when max age is disabled"
+  },
+  "maxAgeDays": {
+    "message": "$COUNT$ $UNIT$",
+    "description": "Max age display like '7 days' or '1 day'",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "dayUnit": {
+    "message": "day",
+    "description": "Singular day unit"
+  },
+  "daysUnit": {
+    "message": "days",
+    "description": "Plural days unit"
+  },
+  "hideMostRelevant": {
+    "message": "Hide \"Most relevant\" section",
+    "description": "Checkbox label"
+  },
+  "hideLatest": {
+    "message": "Hide \"Latest\" section",
+    "description": "Checkbox label"
+  },
+  "hideShorts": {
+    "message": "Hide \"Shorts\" section",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnail": {
+    "message": "Show hide icon on thumbnail",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnailHint": {
+    "message": "When off, icon appears next to video metadata",
+    "description": "Hint for icon placement option"
+  },
+  "videosCached": {
+    "message": "$COUNT$ $UNIT$ cached",
+    "description": "Cache count display like '5 videos cached'",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "videoUnit": {
+    "message": "video",
+    "description": "Singular video unit"
+  },
+  "videosUnit": {
+    "message": "videos",
+    "description": "Plural videos unit"
+  },
+  "clearCache": {
+    "message": "Clear cache",
+    "description": "Button to clear the cache"
+  },
+  "cacheWarning": {
+    "message": "Cache is nearing the storage limit. Oldest entries will be auto-removed.",
+    "description": "Warning shown when cache is almost full"
+  },
+  "cacheCleared": {
+    "message": "Cache cleared",
+    "description": "Status message after clearing cache"
+  },
+  "saved": {
+    "message": "Saved",
+    "description": "Status message after saving a setting"
+  },
+  "markedCount": {
+    "message": "Marked $COUNT$",
+    "description": "Shown after marking all videos",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "noVideosFound": {
+    "message": "No videos found",
+    "description": "Shown when mark all finds no videos"
+  },
+  "hiddenCount": {
+    "message": "$COUNT$ watched $UNIT$ hidden",
+    "description": "Hidden video count in popup like '5 watched videos hidden'",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "markAsWatched": {
+    "message": "Mark as watched",
+    "description": "Tooltip for the eye icon button"
+  },
+  "videoHidden": {
+    "message": "Video hidden",
+    "description": "Text shown in the undo card"
+  },
+  "undo": {
+    "message": "Undo",
+    "description": "Undo button text"
+  },
+  "ageCutoff": {
+    "message": "Only showing videos from the last $COUNT$ $UNIT$",
+    "description": "Banner shown when age cutoff is active",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  }
+}

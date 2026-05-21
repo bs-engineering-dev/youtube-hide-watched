@@ -1,0 +1,145 @@
+{
+  "extName": {
+    "message": "দেখা YouTube ভিডিও লুকান",
+    "description": "Extension name shown in browser and store"
+  },
+  "extDescription": {
+    "message": "আপনার YouTube সাবস্ক্রিপশন পৃষ্ঠা থেকে দেখা ভিডিওগুলো লুকিয়ে রাখে, শুধুমাত্র না দেখা কন্টেন্ট দেখায়।",
+    "description": "Extension description shown in browser and store"
+  },
+  "hideWatchedVideos": {
+    "message": "দেখা ভিডিও লুকান",
+    "description": "Toggle label in popup"
+  },
+  "markAllWatched": {
+    "message": "সব দেখা হয়েছে চিহ্নিত করুন",
+    "description": "Button to mark all visible videos as watched"
+  },
+  "watchThreshold": {
+    "message": "দেখার সীমা:",
+    "description": "Label for threshold slider"
+  },
+  "thresholdHint": {
+    "message": "এই শতাংশের বেশি দেখা ভিডিও লুকান",
+    "description": "Hint text below threshold slider"
+  },
+  "subsMaxAge": {
+    "message": "সাবস্ক্রিপশন সর্বোচ্চ বয়স:",
+    "description": "Label for max age slider"
+  },
+  "maxAgeHint": {
+    "message": "সাবস্ক্রিপশনে এর চেয়ে পুরনো ভিডিও লুকান (০ = বন্ধ)",
+    "description": "Hint text below max age slider"
+  },
+  "maxAgeOff": {
+    "message": "বন্ধ",
+    "description": "Displayed when max age is disabled"
+  },
+  "maxAgeDays": {
+    "message": "$COUNT$ $UNIT$",
+    "description": "Max age display like '7 days' or '1 day'",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "dayUnit": {
+    "message": "দিন",
+    "description": "Singular day unit"
+  },
+  "daysUnit": {
+    "message": "দিন",
+    "description": "Plural days unit"
+  },
+  "hideMostRelevant": {
+    "message": "\"সবচেয়ে প্রাসঙ্গিক\" বিভাগ লুকান",
+    "description": "Checkbox label"
+  },
+  "hideLatest": {
+    "message": "\"সর্বশেষ\" বিভাগ লুকান",
+    "description": "Checkbox label"
+  },
+  "hideShorts": {
+    "message": "\"Shorts\" বিভাগ লুকান",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnail": {
+    "message": "থাম্বনেইলে লুকানোর আইকন দেখান",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnailHint": {
+    "message": "বন্ধ থাকলে, আইকন ভিডিও মেটাডেটার পাশে দেখা যায়",
+    "description": "Hint for icon placement option"
+  },
+  "videosCached": {
+    "message": "$COUNT$ $UNIT$ ক্যাশ করা হয়েছে",
+    "description": "Cache count display",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "videoUnit": {
+    "message": "ভিডিও",
+    "description": "Singular video unit"
+  },
+  "videosUnit": {
+    "message": "ভিডিও",
+    "description": "Plural videos unit"
+  },
+  "clearCache": {
+    "message": "ক্যাশ মুছুন",
+    "description": "Button to clear the cache"
+  },
+  "cacheWarning": {
+    "message": "ক্যাশ স্টোরেজ সীমার কাছাকাছি পৌঁছে গেছে। পুরনো এন্ট্রিগুলো স্বয়ংক্রিয়ভাবে সরিয়ে দেওয়া হবে।",
+    "description": "Warning shown when cache is almost full"
+  },
+  "cacheCleared": {
+    "message": "ক্যাশ মুছে ফেলা হয়েছে",
+    "description": "Status message after clearing cache"
+  },
+  "saved": {
+    "message": "সংরক্ষিত",
+    "description": "Status message after saving a setting"
+  },
+  "markedCount": {
+    "message": "$COUNT$টি চিহ্নিত করা হয়েছে",
+    "description": "Shown after marking all videos",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "noVideosFound": {
+    "message": "কোনো ভিডিও পাওয়া যায়নি",
+    "description": "Shown when mark all finds no videos"
+  },
+  "hiddenCount": {
+    "message": "$COUNT$টি দেখা $UNIT$ লুকানো হয়েছে",
+    "description": "Hidden video count in popup",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "markAsWatched": {
+    "message": "দেখা হয়েছে চিহ্নিত করুন",
+    "description": "Tooltip for the eye icon button"
+  },
+  "videoHidden": {
+    "message": "ভিডিও লুকানো হয়েছে",
+    "description": "Text shown in the undo card"
+  },
+  "undo": {
+    "message": "পূর্বাবস্থায় ফেরান",
+    "description": "Undo button text"
+  },
+  "ageCutoff": {
+    "message": "শুধুমাত্র গত $COUNT$ $UNIT$ এর ভিডিও দেখানো হচ্ছে",
+    "description": "Banner shown when age cutoff is active",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  }
+}

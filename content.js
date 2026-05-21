@@ -351,7 +351,7 @@
     const isShort = isShortRenderer(el);
 
     const btn = document.createElement('button');
-    btn.title = 'Mark as watched';
+    btn.title = chrome.i18n.getMessage('markAsWatched');
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -434,10 +434,10 @@
     card.className = 'hw-undo-card';
     const undoText = document.createElement('span');
     undoText.className = 'hw-undo-text';
-    undoText.textContent = 'Video hidden';
+    undoText.textContent = chrome.i18n.getMessage('videoHidden');
     const undoBtn = document.createElement('button');
     undoBtn.className = 'hw-undo-btn';
-    undoBtn.textContent = 'Undo';
+    undoBtn.textContent = chrome.i18n.getMessage('undo');
     card.append(undoText, undoBtn);
     el.appendChild(card);
 
@@ -500,7 +500,8 @@
     if (!grid) return;
     const banner = document.createElement('div');
     banner.className = 'hw-age-cutoff-banner';
-    banner.textContent = `Only showing videos from the last ${config.maxAgeDays} day${config.maxAgeDays !== 1 ? 's' : ''}`;
+    const dayUnit = config.maxAgeDays === 1 ? chrome.i18n.getMessage('dayUnit') : chrome.i18n.getMessage('daysUnit');
+    banner.textContent = chrome.i18n.getMessage('ageCutoff', [String(config.maxAgeDays), dayUnit]);
     grid.parentElement.insertBefore(banner, grid.nextSibling);
   }
 

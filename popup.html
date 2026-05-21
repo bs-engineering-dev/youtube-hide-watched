@@ -185,63 +185,63 @@
 </style>
 </head>
 <body>
-  <div class="header">Hide Watched YouTube Videos</div>
+  <div class="header" data-i18n="extName"></div>
   <div class="hidden-count" id="hidden-count"></div>
   <div class="toggle-row">
-    <span>Hide watched videos</span>
+    <span data-i18n="hideWatchedVideos"></span>
     <label class="switch">
       <input type="checkbox" id="toggle">
       <span class="slider"></span>
     </label>
   </div>
-  <button class="mark-all-btn" id="markAll">Mark All Watched</button>
+  <button class="mark-all-btn" id="markAll" data-i18n="markAllWatched"></button>
   <hr class="divider">
   <div class="field">
-    <label>Watch threshold: <span class="threshold-val" id="threshold-display">1%</span></label>
+    <label><span data-i18n="watchThreshold"></span> <span class="threshold-val" id="threshold-display">1%</span></label>
     <input type="range" id="threshold" min="1" max="100" value="1">
-    <div class="hint">Hide videos watched past this percentage</div>
+    <div class="hint" data-i18n="thresholdHint"></div>
   </div>
   <div class="field">
-    <label>Subscriptions max age: <span class="threshold-val" id="maxage-display">Off</span></label>
+    <label><span data-i18n="subsMaxAge"></span> <span class="threshold-val" id="maxage-display"></span></label>
     <input type="range" id="maxAgeDays" min="0" max="90" value="0">
-    <div class="hint">Hide videos older than this on Subscriptions (0 = off)</div>
+    <div class="hint" data-i18n="maxAgeHint"></div>
   </div>
   <div class="field">
     <label class="checkbox-label">
       <input type="checkbox" id="hideMostRelevant" checked>
-      Hide "Most relevant" section
+      <span data-i18n="hideMostRelevant"></span>
     </label>
   </div>
   <div class="field">
     <label class="checkbox-label">
       <input type="checkbox" id="hideLatest" checked>
-      Hide "Latest" section
+      <span data-i18n="hideLatest"></span>
     </label>
   </div>
   <div class="field">
     <label class="checkbox-label">
       <input type="checkbox" id="hideShorts">
-      Hide "Shorts" section
+      <span data-i18n="hideShorts"></span>
     </label>
   </div>
   <div class="field">
     <label class="checkbox-label">
       <input type="checkbox" id="iconOnThumbnail">
-      Show hide icon on thumbnail
+      <span data-i18n="iconOnThumbnail"></span>
     </label>
-    <div class="hint">When off, icon appears next to video metadata</div>
+    <div class="hint" data-i18n="iconOnThumbnailHint"></div>
   </div>
   <div class="field">
     <div class="cache-row">
-      <span id="cache-count">0 videos cached</span>
-      <button class="clear-btn" id="clear-cache">Clear cache</button>
+      <span id="cache-count"></span>
+      <button class="clear-btn" id="clear-cache" data-i18n="clearCache"></button>
     </div>
     <div class="cache-bar-row">
       <div class="cache-bar"><div class="cache-bar-fill" id="cache-bar-fill"></div></div>
       <span class="cache-bar-label" id="cache-bar-label">0 MB / 10 MB</span>
     </div>
   </div>
-  <div class="cache-warning" id="cache-warning">Cache is nearing the storage limit. Oldest entries will be auto-removed.</div>
+  <div class="cache-warning" id="cache-warning" data-i18n="cacheWarning"></div>
   <div class="status" id="status"></div>
   <script src="popup.js"></script>
 </body>

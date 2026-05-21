@@ -1,0 +1,145 @@
+{
+  "extName": {
+    "message": "पाहिलेले YouTube व्हिडिओ लपवा",
+    "description": "Extension name shown in browser and store"
+  },
+  "extDescription": {
+    "message": "तुमच्या YouTube सबस्क्रिप्शन पृष्ठावरील पाहिलेले व्हिडिओ लपवते, फक्त न पाहिलेला आशय दाखवते.",
+    "description": "Extension description shown in browser and store"
+  },
+  "hideWatchedVideos": {
+    "message": "पाहिलेले व्हिडिओ लपवा",
+    "description": "Toggle label in popup"
+  },
+  "markAllWatched": {
+    "message": "सर्व पाहिले म्हणून चिन्हांकित करा",
+    "description": "Button to mark all visible videos as watched"
+  },
+  "watchThreshold": {
+    "message": "पाहण्याची मर्यादा:",
+    "description": "Label for threshold slider"
+  },
+  "thresholdHint": {
+    "message": "या टक्केवारीपेक्षा जास्त पाहिलेले व्हिडिओ लपवा",
+    "description": "Hint text below threshold slider"
+  },
+  "subsMaxAge": {
+    "message": "सबस्क्रिप्शन कमाल वय:",
+    "description": "Label for max age slider"
+  },
+  "maxAgeHint": {
+    "message": "सबस्क्रिप्शनमध्ये यापेक्षा जुने व्हिडिओ लपवा (0 = बंद)",
+    "description": "Hint text below max age slider"
+  },
+  "maxAgeOff": {
+    "message": "बंद",
+    "description": "Displayed when max age is disabled"
+  },
+  "maxAgeDays": {
+    "message": "$COUNT$ $UNIT$",
+    "description": "Max age display like '7 days' or '1 day'",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "dayUnit": {
+    "message": "दिवस",
+    "description": "Singular day unit"
+  },
+  "daysUnit": {
+    "message": "दिवस",
+    "description": "Plural days unit"
+  },
+  "hideMostRelevant": {
+    "message": "\"सर्वात संबंधित\" विभाग लपवा",
+    "description": "Checkbox label"
+  },
+  "hideLatest": {
+    "message": "\"नवीनतम\" विभाग लपवा",
+    "description": "Checkbox label"
+  },
+  "hideShorts": {
+    "message": "\"Shorts\" विभाग लपवा",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnail": {
+    "message": "थंबनेलवर लपवा चिन्ह दाखवा",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnailHint": {
+    "message": "बंद असताना, चिन्ह व्हिडिओ माहितीच्या बाजूला दिसते",
+    "description": "Hint for icon placement option"
+  },
+  "videosCached": {
+    "message": "$COUNT$ $UNIT$ कॅश केले",
+    "description": "Cache count display",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "videoUnit": {
+    "message": "व्हिडिओ",
+    "description": "Singular video unit"
+  },
+  "videosUnit": {
+    "message": "व्हिडिओ",
+    "description": "Plural videos unit"
+  },
+  "clearCache": {
+    "message": "कॅश साफ करा",
+    "description": "Button to clear the cache"
+  },
+  "cacheWarning": {
+    "message": "कॅश स्टोरेज मर्यादेच्या जवळ पोहोचत आहे. जुन्या नोंदी आपोआप काढल्या जातील.",
+    "description": "Warning shown when cache is almost full"
+  },
+  "cacheCleared": {
+    "message": "कॅश साफ झाले",
+    "description": "Status message after clearing cache"
+  },
+  "saved": {
+    "message": "जतन केले",
+    "description": "Status message after saving a setting"
+  },
+  "markedCount": {
+    "message": "$COUNT$ चिन्हांकित केले",
+    "description": "Shown after marking all videos",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "noVideosFound": {
+    "message": "व्हिडिओ सापडले नाहीत",
+    "description": "Shown when mark all finds no videos"
+  },
+  "hiddenCount": {
+    "message": "$COUNT$ पाहिलेले $UNIT$ लपवले",
+    "description": "Hidden video count in popup",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "markAsWatched": {
+    "message": "पाहिले म्हणून चिन्हांकित करा",
+    "description": "Tooltip for the eye icon button"
+  },
+  "videoHidden": {
+    "message": "व्हिडिओ लपवला",
+    "description": "Text shown in the undo card"
+  },
+  "undo": {
+    "message": "पूर्ववत करा",
+    "description": "Undo button text"
+  },
+  "ageCutoff": {
+    "message": "फक्त मागील $COUNT$ $UNIT$ चे व्हिडिओ दाखवले जात आहेत",
+    "description": "Banner shown when age cutoff is active",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  }
+}
