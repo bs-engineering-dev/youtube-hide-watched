@@ -22,7 +22,8 @@ const CACHE_WARN_BYTES = 8_000_000;
 const msg = chrome.i18n.getMessage.bind(chrome.i18n);
 
 document.querySelectorAll('[data-i18n]').forEach(el => {
-  el.textContent = msg(el.dataset.i18n);
+  const translated = msg(el.dataset.i18n);
+  if (translated) el.textContent = translated;
 });
 
 function pluralUnit(count, singularKey, pluralKey) {
