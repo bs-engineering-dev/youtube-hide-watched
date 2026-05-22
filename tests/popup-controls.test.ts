@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, getI18nMessage } from './fixtures';
 
 test('toggle persists enabled state to storage', async ({ context, extensionId }) => {
   const popup = await context.newPage();
@@ -21,14 +21,15 @@ test('toggle persists enabled state to storage', async ({ context, extensionId }
   await expect(popup.locator('#toggle')).toBeChecked();
 });
 
-test('mark all shows "No videos found" on non-youtube page', async ({ context, extensionId }) => {
+test('mark all shows localized "No videos found" on non-youtube page', async ({ context, extensionId }) => {
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${extensionId}/popup.html`);
 
+  const noVideos = await getI18nMessage(popup, 'noVideosFound');
   const btn = popup.locator('#markAll');
   await btn.click();
 
-  await expect(btn).toHaveText('No videos found');
+  await expect(btn).toHaveText(noVideos);
   await expect(btn).toBeDisabled();
 });
 
@@ -53,19 +54,23 @@ test('max age slider updates display', async ({ context, extensionId }) => {
   const slider = popup.locator('#maxAgeDays');
   const display = popup.locator('#maxage-display');
 
-  await expect(display).toHaveText('Off');
+  const off = await getI18nMessage(popup, 'maxAgeOff');
+  const day1 = await getI18nMessage(popup, 'maxAgeDays', ['1', await getI18nMessage(popup, 'dayUnit')]);
+  const day7 = await getI18nMessage(popup, 'maxAgeDays', ['7', await getI18nMessage(popup, 'daysUnit')]);
+
+  await expect(display).toHaveText(off);
 
   await slider.fill('7');
   await slider.dispatchEvent('input');
-  await expect(display).toHaveText('7 days');
+  await expect(display).toHaveText(day7);
 
   await slider.fill('1');
   await slider.dispatchEvent('input');
-  await expect(display).toHaveText('1 day');
+  await expect(display).toHaveText(day1);
 
   await slider.fill('0');
   await slider.dispatchEvent('input');
-  await expect(display).toHaveText('Off');
+  await expect(display).toHaveText(off);
 });
 
 test('hidden count shows in popup when videos are hidden', async ({ context, extensionId }) => {
@@ -82,7 +87,10 @@ test('clear cache resets count', async ({ context, extensionId }) => {
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${extensionId}/popup.html`);
 
-  await expect(popup.locator('#cache-count')).toHaveText('0 videos cached');
+  const cached = await getI18nMessage(popup, 'videosCached', ['0', await getI18nMessage(popup, 'videosUnit')]);
+  const cleared = await getI18nMessage(popup, 'cacheCleared');
+
+  await expect(popup.locator('#cache-count')).toHaveText(cached);
   await popup.locator('#clear-cache').click();
-  await expect(popup.locator('#status')).toHaveText('Cache cleared');
+  await expect(popup.locator('#status')).toHaveText(cleared);
 });

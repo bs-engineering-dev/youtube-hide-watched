@@ -50,6 +50,10 @@ export async function dismissConsent(page: Page) {
   } catch {}
 }
 
+export async function getI18nMessage(page: Page, key: string, substitutions?: string[]): Promise<string> {
+  return page.evaluate(({ k, s }) => chrome.i18n.getMessage(k, s), { k: key, s: substitutions });
+}
+
 export async function waitForVideos(page: Page): Promise<boolean> {
   await dismissConsent(page);
   try {

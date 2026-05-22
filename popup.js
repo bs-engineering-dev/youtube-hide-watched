@@ -14,14 +14,25 @@ const cacheBarFill = document.getElementById('cache-bar-fill');
 const cacheBarLabel = document.getElementById('cache-bar-label');
 const clearBtn = document.getElementById('clear-cache');
 const status = document.getElementById('status');
-
 const hiddenCount = document.getElementById('hidden-count');
 
 const CACHE_MAX_BYTES = 10_485_760;
 const CACHE_WARN_BYTES = 8_000_000;
 
+const msg = chrome.i18n.getMessage.bind(chrome.i18n);
+
+document.querySelectorAll('[data-i18n]').forEach(el => {
+  const translated = msg(el.dataset.i18n);
+  if (translated) el.textContent = translated;
+});
+
+function pluralUnit(count, singularKey, pluralKey) {
+  return count === 1 ? msg(singularKey) : msg(pluralKey);
+}
+
 function formatMaxAge(val) {
-  return val === 0 ? 'Off' : val + ' day' + (val !== 1 ? 's' : '');
+  if (val === 0) return msg('maxAgeOff');
+  return msg('maxAgeDays', [String(val), pluralUnit(val, 'dayUnit', 'daysUnit')]);
 }
 
 (async () => {
@@ -30,7 +41,7 @@ function formatMaxAge(val) {
     try {
       const resp = await chrome.tabs.sendMessage(tab.id, { action: 'getHiddenCount' });
       if (resp?.count > 0) {
-        hiddenCount.textContent = `${resp.count} watched video${resp.count !== 1 ? 's' : ''} hidden`;
+        hiddenCount.textContent = msg('hiddenCount', [String(resp.count), pluralUnit(resp.count, 'videoUnit', 'videosUnit')]);
       }
     } catch {}
   }
@@ -63,13 +74,13 @@ markAllBtn.addEventListener('click', async () => {
   if (tab?.id) {
     try {
       const resp = await chrome.tabs.sendMessage(tab.id, { action: 'markAllWatched' });
-      markAllBtn.textContent = `Marked ${resp?.count ?? 0}`;
+      markAllBtn.textContent = msg('markedCount', [String(resp?.count ?? 0)]);
     } catch {
-      markAllBtn.textContent = 'No videos found';
+      markAllBtn.textContent = msg('noVideosFound');
     }
   }
   setTimeout(() => {
-    markAllBtn.textContent = 'Mark All Watched';
+    markAllBtn.textContent = msg('markAllWatched');
     markAllBtn.disabled = false;
   }, 2000);
 });
@@ -80,7 +91,7 @@ threshold.addEventListener('input', () => {
 
 threshold.addEventListener('change', () => {
   chrome.storage.sync.set({ threshold: parseInt(threshold.value) });
-  flash('Saved');
+  flash(msg('saved'));
 });
 
 maxAgeDays.addEventListener('input', () => {
@@ -89,38 +100,38 @@ maxAgeDays.addEventListener('input', () => {
 
 maxAgeDays.addEventListener('change', () => {
   chrome.storage.sync.set({ maxAgeDays: parseInt(maxAgeDays.value) });
-  flash('Saved');
+  flash(msg('saved'));
 });
 
 hideMostRelevant.addEventListener('change', () => {
   chrome.storage.sync.set({ hideMostRelevant: hideMostRelevant.checked });
-  flash('Saved');
+  flash(msg('saved'));
 });
 
 hideLatest.addEventListener('change', () => {
   chrome.storage.sync.set({ hideLatest: hideLatest.checked });
-  flash('Saved');
+  flash(msg('saved'));
 });
 
 hideShorts.addEventListener('change', () => {
   chrome.storage.sync.set({ hideShorts: hideShorts.checked });
-  flash('Saved');
+  flash(msg('saved'));
 });
 
 iconOnThumbnail.addEventListener('change', () => {
   chrome.storage.sync.set({ iconOnThumbnail: iconOnThumbnail.checked });
-  flash('Saved');
+  flash(msg('saved'));
 });
 
 clearBtn.addEventListener('click', () => {
   chrome.storage.local.set({ cache: {} });
   updateCacheCount(0);
   updateCacheBar(2);
-  flash('Cache cleared');
+  flash(msg('cacheCleared'));
 });
 
 function updateCacheCount(n) {
-  cacheCount.textContent = n + ' video' + (n !== 1 ? 's' : '') + ' cached';
+  cacheCount.textContent = msg('videosCached', [String(n), pluralUnit(n, 'videoUnit', 'videosUnit')]);
 }
 
 function updateCacheBar(bytes) {
@@ -137,7 +148,7 @@ function updateCacheBar(bytes) {
   }
 }
 
-function flash(msg) {
-  status.textContent = msg;
+function flash(text) {
+  status.textContent = text;
   setTimeout(() => { status.textContent = ''; }, 2000);
 }

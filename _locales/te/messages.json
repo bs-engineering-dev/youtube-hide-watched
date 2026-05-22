@@ -1,0 +1,145 @@
+{
+  "extName": {
+    "message": "చూసిన YouTube వీడియోలను దాచు",
+    "description": "Extension name shown in browser and store"
+  },
+  "extDescription": {
+    "message": "మీ YouTube సబ్‌స్క్రిప్షన్ల పేజీలో చూసిన వీడియోలను దాచి, చూడని కంటెంట్‌ను మాత్రమే చూపిస్తుంది.",
+    "description": "Extension description shown in browser and store"
+  },
+  "hideWatchedVideos": {
+    "message": "చూసిన వీడియోలను దాచు",
+    "description": "Toggle label in popup"
+  },
+  "markAllWatched": {
+    "message": "అన్నీ చూసినట్లు గుర్తించు",
+    "description": "Button to mark all visible videos as watched"
+  },
+  "watchThreshold": {
+    "message": "చూపు పరిమితి:",
+    "description": "Label for threshold slider"
+  },
+  "thresholdHint": {
+    "message": "ఈ శాతానికి మించి చూసిన వీడియోలను దాచు",
+    "description": "Hint text below threshold slider"
+  },
+  "subsMaxAge": {
+    "message": "సబ్‌స్క్రిప్షన్ల గరిష్ట వయసు:",
+    "description": "Label for max age slider"
+  },
+  "maxAgeHint": {
+    "message": "సబ్‌స్క్రిప్షన్లలో దీని కంటే పాత వీడియోలను దాచు (0 = ఆఫ్)",
+    "description": "Hint text below max age slider"
+  },
+  "maxAgeOff": {
+    "message": "ఆఫ్",
+    "description": "Displayed when max age is disabled"
+  },
+  "maxAgeDays": {
+    "message": "$COUNT$ $UNIT$",
+    "description": "Max age display like '7 days' or '1 day'",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "dayUnit": {
+    "message": "రోజు",
+    "description": "Singular day unit"
+  },
+  "daysUnit": {
+    "message": "రోజులు",
+    "description": "Plural days unit"
+  },
+  "hideMostRelevant": {
+    "message": "\"అత్యంత సంబంధిత\" విభాగాన్ని దాచు",
+    "description": "Checkbox label"
+  },
+  "hideLatest": {
+    "message": "\"తాజా\" విభాగాన్ని దాచు",
+    "description": "Checkbox label"
+  },
+  "hideShorts": {
+    "message": "\"Shorts\" విభాగాన్ని దాచు",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnail": {
+    "message": "థంబ్‌నెయిల్‌పై దాచు ఐకాన్ చూపించు",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnailHint": {
+    "message": "ఆఫ్ చేసినప్పుడు, ఐకాన్ వీడియో మెటాడేటా పక్కన కనిపిస్తుంది",
+    "description": "Hint for icon placement option"
+  },
+  "videosCached": {
+    "message": "$COUNT$ $UNIT$ క్యాష్ చేయబడ్డాయి",
+    "description": "Cache count display",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "videoUnit": {
+    "message": "వీడియో",
+    "description": "Singular video unit"
+  },
+  "videosUnit": {
+    "message": "వీడియోలు",
+    "description": "Plural videos unit"
+  },
+  "clearCache": {
+    "message": "క్యాష్ తొలగించు",
+    "description": "Button to clear the cache"
+  },
+  "cacheWarning": {
+    "message": "క్యాష్ నిల్వ పరిమితికి దగ్గరగా ఉంది. పాత ఎంట్రీలు స్వయంచాలకంగా తీసివేయబడతాయి.",
+    "description": "Warning shown when cache is almost full"
+  },
+  "cacheCleared": {
+    "message": "క్యాష్ తొలగించబడింది",
+    "description": "Status message after clearing cache"
+  },
+  "saved": {
+    "message": "సేవ్ చేయబడింది",
+    "description": "Status message after saving a setting"
+  },
+  "markedCount": {
+    "message": "$COUNT$ గుర్తించబడ్డాయి",
+    "description": "Shown after marking all videos",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "noVideosFound": {
+    "message": "వీడియోలు ఏవీ కనుగొనబడలేదు",
+    "description": "Shown when mark all finds no videos"
+  },
+  "hiddenCount": {
+    "message": "$COUNT$ చూసిన $UNIT$ దాచబడ్డాయి",
+    "description": "Hidden video count in popup",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  },
+  "markAsWatched": {
+    "message": "చూసినట్లు గుర్తించు",
+    "description": "Tooltip for the eye icon button"
+  },
+  "videoHidden": {
+    "message": "వీడియో దాచబడింది",
+    "description": "Text shown in the undo card"
+  },
+  "undo": {
+    "message": "రద్దు చేయి",
+    "description": "Undo button text"
+  },
+  "ageCutoff": {
+    "message": "గత $COUNT$ $UNIT$ వీడియోలు మాత్రమే చూపబడుతున్నాయి",
+    "description": "Banner shown when age cutoff is active",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "unit": { "content": "$2" }
+    }
+  }
+}
