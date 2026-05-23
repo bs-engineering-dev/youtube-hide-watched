@@ -30,6 +30,7 @@ The extension detects YouTube's built-in progress bars on video thumbnails. If a
 - Optionally hide the "Most relevant" section on Subscriptions
 - Undo support when you accidentally mark a video
 - Works with YouTube's dark mode
+- Localized in 19 languages
 - Settings sync across your Chrome devices
 
 **Pin it to your toolbar**
@@ -62,6 +63,6 @@ This extension does not collect, transmit, or share any data. All settings and m
 
 Productivity
 
-## Language
+## Languages
 
-English
+English, Arabic, Bengali, Chinese (Simplified), French, German, Hindi, Indonesian, Japanese, Korean, Marathi, Portuguese (Brazil), Russian, Spanish, Tamil, Telugu, Thai, Turkish, Vietnamese
