@@ -3,7 +3,6 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
     branches: [main]
 
@@ -30,21 +29,38 @@ jobs:
 
   release:
     needs: test
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for version change
+        id: version
+        run: |
+          CURRENT=$(jq -r .version manifest.json)
+          PREVIOUS=$(git show HEAD~1:manifest.json | jq -r .version)
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          if [ "$CURRENT" != "$PREVIOUS" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: oven-sh/setup-bun@v2
+        if: steps.version.outputs.changed == 'true'
 
       - run: bun install
+        if: steps.version.outputs.changed == 'true'
 
       - name: Build extension zip
+        if: steps.version.outputs.changed == 'true'
         run: bun run build
 
       - uses: softprops/action-gh-release@v2
+        if: steps.version.outputs.changed == 'true'
         with:
+          tag_name: v${{ steps.version.outputs.current }}
           files: dist/youtube-hide-watched-*.zip
           generate_release_notes: true
