@@ -109,14 +109,9 @@ Tests use Playwright to launch Chromium with the extension loaded. Some tests th
 ### Releasing
 
 1. Bump the `version` in `manifest.json`
-2. Commit the change
-3. Tag and push:
-   ```sh
-   git tag v1.x.x
-   git push origin main --tags
-   ```
-4. CI runs tests, builds the extension zip, and creates a GitHub Release with the artifact attached
-5. Download the zip from the release and upload it to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+2. Commit and push (or merge a PR) to `main`
+3. CI detects the version change, runs tests, builds the extension zip, creates a git tag (`v1.x.x`), and publishes a GitHub Release with the artifact attached
+4. Download the zip from the release and upload it to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
 
 ### Regenerating store assets
 
