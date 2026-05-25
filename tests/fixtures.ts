@@ -41,7 +41,7 @@ export { expect } from '@playwright/test';
 
 // Fresh profiles get an empty home page ("Try searching to get started").
 // Channel pages always render videos regardless of sign-in state.
-export const YOUTUBE_VIDEO_PAGE = 'https://www.youtube.com/@MrBeast/videos';
+export const YOUTUBE_VIDEO_PAGE = 'https://www.youtube.com/@tested/videos';
 
 export async function dismissConsent(page: Page) {
   try {

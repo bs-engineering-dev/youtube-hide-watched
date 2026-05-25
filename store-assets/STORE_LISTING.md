@@ -30,7 +30,7 @@ The extension detects YouTube's built-in progress bars on video thumbnails. If a
 - Optionally hide the "Most relevant" section on Subscriptions
 - Undo support when you accidentally mark a video
 - Works with YouTube's dark mode
-- Localized in 19 languages
+- Localized in 20 languages
 - Settings sync across your Chrome devices
 
 **Pin it to your toolbar**
@@ -59,10 +59,6 @@ https://github.com/bs-engineering-dev/youtube-hide-watched/
 
 This extension does not collect, transmit, or share any data. All settings and marked videos are stored locally in your browser. It does not access your Google account or YouTube watch history.
 
-## Category
-
-Productivity
-
 ## Languages
 
-English, Arabic, Bengali, Chinese (Simplified), French, German, Hindi, Indonesian, Japanese, Korean, Marathi, Portuguese (Brazil), Russian, Spanish, Tamil, Telugu, Thai, Turkish, Vietnamese
+English, Arabic, Bengali, Chinese (Simplified), French, German, Hindi, Indonesian, Japanese, Korean, Marathi, Portuguese (Brazil), Russian, Spanish, Swedish, Tamil, Telugu, Thai, Turkish, Vietnamese

@@ -15,7 +15,7 @@ test('content script injects on youtube channel page', async ({ page }) => {
 });
 
 test('content script does not inject on youtube watch page', async ({ page }) => {
-  await page.goto('https://www.youtube.com/watch?v=dQw4w9WgXcQ', { waitUntil: 'domcontentloaded' });
+  await page.goto('https://www.youtube.com/watch?v=jNQXAC9IVRw', { waitUntil: 'domcontentloaded' });
   await dismissConsent(page);
   await page.waitForTimeout(3000);
 
