@@ -21,7 +21,7 @@ const os = require("os");
 const readline = require("readline");
 
 const MOST_RELEVANT_RE =
-  /most relevant|más relevantes|les plus pertinentes|Relevanteste|paling relevan|関連が強い|관련성|सबसे ज़्यादा काम के वीडियो|সবচেয়ে প্রাসঙ্গিক|الأكثر صلة|Самые актуальные|mais relevantes|en alakalı|mest relevant|เกี่ยวข้องที่สุด|மிகவும் தொடர்புடையவை|మరింత సందర్భోచితమైనవి|सर्वात सुसंबद्ध|最相关|Phù hợp nhất|mest relevanta/i;
+  /most relevant|más relevantes|les plus pertinentes|Relevanteste|paling relevan|関連が強い|관련성|काम के वीडियो|প্রাসঙ্গিক|الأكثر صلة|Самые актуальные|mais relevantes|en alakalı|mest relevant|เกี่ยวข้องที่สุด|மிகவும் தொடர்புடையவை|మరింత సందర్భోచితమైనవి|सर्वात सुसंबद्ध|最相关|Phù hợp nhất|mest relevanta/i;
 
 const LATEST_RE =
   /^(latest|más recientes|les plus récentes|neueste|terbaru|新しい順|최신순|नए|লেটেস্ট|الأحدث|Новые|mais recentes|Son yüklenenler|senaste|ล่าสุด|சமீபத்தியவை|తాజా|अलीकडील|最新|Mới nhất)$/i;
@@ -32,7 +32,7 @@ const STREAMED_RE = /^(streamed|emitido|diffusé|gestreamt|disiarkan|ライブ�
 
 const TIME_UNITS = [
   { re: /second|segund|seconde|Sekunde|detik|秒|초|सेकंड|সেকেন্ড|ثاني|секунд|sekund|saniye|sekund|วินาที|நொடி|సెకన్|सेकंद/i, days: 0 },
-  { re: /minute|minut|Minute|menit|分|분|मिनट|মিনিট|دقيق|минут|minuto|dakika|minut|นาที|நிமிடம்|నిమిషం|मिनिट/i, days: 0 },
+  { re: /minute|minut|Minute|menit|分|분|मिनट|মিনিট|دق|минут|minuto|dakika|minut|นาที|நிமிட|నిమిష|मिनिट|phút/i, days: 0 },
   { re: /hour|hora|heure|Stunde|jam|時間|시간|घंट|ঘণ্টা|ساع|час|saat|timm|ชั่วโมง|மணி|గంట|तास|小时|giờ/i, days: 0 },
   { re: /day|día|jour|Tag|hari|日|일|दिन|দিন|يوم|дн|dia|gün|dag|วัน|நாள்|రోజు|दिवस/i, days: 1 },
   { re: /week|semana|semaine|Woche|minggu|週|주|हफ़्त|সপ্তাহ|أسبوع|недел|semana|hafta|veck|สัปดาห์|வாரம்|వారం|आठवडा/i, days: 7 },
@@ -40,8 +40,11 @@ const TIME_UNITS = [
   { re: /year|año|an |Jahr|tahun|年|년|साल|বছর|سنة|год|ano|yıl|år|ปี|ஆண்டு|సంవత్సరం|वर्ष/i, days: 365 },
 ];
 
+// Matches "ago" equivalents — used to distinguish time-ago strings from channel names
+const AGO_RE = /ago|hace|il y a|vor|yang lalu|前|전|पहले|আগে|قبل|назад|há|önce|sedan|ที่ผ่านมา|முன்|క్రితం|पूर्वी|trước/i;
+
 // This regex is used in content.js to find the metadata row for button placement
-const VIEW_WATCHING_RE = /view|watching|scheduled|visualizaci|usuarios|vues|Aufrufe|Zuschauer|ditonton|視聴|시청|조회|व्यू|दर्शक|ভিউ|দেখছেন|مشاهد|просмотр|Зрител|visualizaç|assistindo|görüntüleme|izliyor|visning|tittare|การดู|ดูอยู่|பார்வை|பார்க்கிறார்|వీక్షణ|చూస్తున్నారు|व्ह्यू|पाहत|观看|xem/i;
+const VIEW_WATCHING_RE = /view|watching|scheduled|visualizaci|usuarios|vues|Aufrufe|Zuschauer|ditonton|menonton|視聴|시청|조회|व्यू|दर्शक|ভিউ|দেখছেন|مشاهد|просмотр|Зрител|visualizaç|assistindo|görüntüleme|izliyor|visning|tittare|การดู|ดูอยู่|பார்வை|பார்க்கிறார்|వీక్షణ|చూస్తున్నారు|व्ह्यू|पाहत|观看|xem/i;
 
 function parseAgeDays(text) {
   if (!text) return -1;
@@ -195,16 +198,24 @@ function waitForEnter(msg) {
 
       for (const raw of ageStrings) {
         const parsed = parseAgeDays(raw);
+        const isView = VIEW_WATCHING_RE.test(raw);
+        const isAgo = AGO_RE.test(raw) || STREAMED_RE.test(raw);
         const hasStreamed = STREAMED_RE.test(raw);
+        // Skip strings that aren't time-ago or view/watching (e.g. channel names)
+        if (parsed < 0 && !isView && !isAgo) continue;
+        let status;
+        if (parsed >= 0) status = `${parsed} days`;
+        else if (isView) status = "VIEW";
+        else status = "FAILED";
         timeResults.push({
           hl,
           text: raw,
           streamed: hasStreamed ? "YES" : "",
-          parsed: parsed >= 0 ? `${parsed} days` : "FAILED",
+          parsed: status,
         });
       }
 
-      if (ageStrings.length === 0) {
+      if (!timeResults.some((r) => r.hl === hl)) {
         timeResults.push({ hl, text: "(no age strings)", streamed: "", parsed: "SKIP" });
       }
 
