@@ -20,31 +20,134 @@ const fs = require("fs");
 const os = require("os");
 const readline = require("readline");
 
-const MOST_RELEVANT_RE =
-  /most relevant|más relevantes|les plus pertinentes|Relevanteste|paling relevan|関連が強い|관련성|काम के वीडियो|প্রাসঙ্গিক|الأكثر صلة|Самые актуальные|mais relevantes|en alakalı|mest relevant|เกี่ยวข้องที่สุด|மிகவும் தொடர்புடையவை|మరింత సందర్భోచితమైనవి|सर्वात सुसंबद्ध|最相关|Phù hợp nhất|mest relevanta/i;
+// ── Locale patterns (must match content.js) ─────────────────
+// Maps language codes to YouTube UI text (case-insensitive substring match).
 
-const LATEST_RE =
-  /^(latest|más recientes|les plus récentes|neueste|terbaru|新しい順|최신순|नए|লেটেস্ট|الأحدث|Новые|mais recentes|Son yüklenenler|senaste|ล่าสุด|சமீபத்தியவை|తాజా|अलीकडील|最新|Mới nhất)$/i;
+function localeRE(map, wrap = s => s) {
+  return new RegExp(wrap(Object.values(map).flat().join('|')), 'i');
+}
 
-const SHORTS_RE = /shorts|ショート/i;
+const MOST_RELEVANT_RE = localeRE({
+  en: 'most relevant',    es: 'más relevantes',       fr: 'les plus pertinentes',
+  de: 'Relevanteste',     id: 'paling relevan',       pt: 'mais relevantes',
+  tr: 'en alakalı',       sv: 'mest relevant',        vi: 'Phù hợp nhất',
+  ja: '関連が強い',       ko: '관련성',               zh: '最相关',
+  ar: 'الأكثر صلة',      ru: 'Самые актуальные',
+  hi: 'काम के वीडियो',   bn: 'প্রাসঙ্গিক',          mr: 'सर्वात सुसंबद्ध',
+  th: 'เกี่ยวข้องที่สุด', ta: 'மிகவும் தொடர்புடையவை', te: 'మరింత సందర్భోచితమైనవి',
+});
 
-const STREAMED_RE = /^(streamed|emitido|diffusé|gestreamt|disiarkan|ライブ配信|실시간 스트리밍|लाइव स्ट्रीम|লাইভ স্ট্রিম|بث مباشر|трансляция|transmitido|canlı yayın|strömmade|ถ่ายทอดสด|நேரலை|ప్రత్యక్ష ప్రసారం|लाइव्ह स्ट्रीम|直播)\s*/i;
+const LATEST_RE = localeRE({
+  en: 'latest',           es: 'más recientes',        fr: 'les plus récentes',
+  de: 'neueste',          id: 'terbaru',              pt: 'mais recentes',
+  tr: 'Son yüklenenler',  sv: 'senaste',              vi: 'Mới nhất',
+  ja: '新しい順',         ko: '최신순',               zh: '最新',
+  ar: 'الأحدث',           ru: 'Новые',
+  hi: 'नए',               bn: 'লেটেস্ট',             mr: 'अलीकडील',
+  th: 'ล่าสุด',           ta: 'சமீபத்தியவை',         te: 'తాజా',
+}, s => `^(${s})$`);
+
+const SHORTS_RE = localeRE({ en: 'shorts', ja: 'ショート' });
+
+const STREAMED_RE = localeRE({
+  en: 'streamed',         es: 'emitido',              fr: 'diffusé',
+  de: 'gestreamt',        id: 'disiarkan',            pt: 'transmitido',
+  tr: 'canlı yayın',     sv: 'strömmade',
+  ja: 'ライブ配信',       ko: '실시간 스트리밍',      zh: '直播',
+  ar: 'بث مباشر',         ru: 'трансляция',
+  hi: 'लाइव स्ट्रीम',    bn: 'লাইভ স্ট্রিম',        mr: 'लाइव्ह स्ट्रीम',
+  th: 'ถ่ายทอดสด',        ta: 'நேரலை',                te: 'ప్రత్యక్ష ప్రసారం',
+}, s => `^(${s})\\s*`);
 
 const TIME_UNITS = [
-  { re: /second|segund|seconde|Sekunde|detik|秒|초|सेकंड|সেকেন্ড|ثاني|секунд|sekund|saniye|sekund|วินาที|நொடி|సెకన్|सेकंद/i, days: 0 },
-  { re: /minute|minut|Minute|menit|分|분|मिनट|মিনিট|دق|минут|minuto|dakika|minut|นาที|நிமிட|నిమిష|मिनिट|phút/i, days: 0 },
-  { re: /hour|hora|heure|Stunde|jam|時間|시간|घंट|ঘণ্টা|ساع|час|saat|timm|ชั่วโมง|மணி|గంట|तास|小时|giờ/i, days: 0 },
-  { re: /day|día|jour|Tag|hari|日|일|दिन|দিন|يوم|дн|dia|gün|dag|วัน|நாள்|రోజు|दिवस/i, days: 1 },
-  { re: /week|semana|semaine|Woche|minggu|週|주|हफ़्त|সপ্তাহ|أسبوع|недел|semana|hafta|veck|สัปดาห์|வாரம்|వారం|आठवडा/i, days: 7 },
-  { re: /month|mes|mois|Monat|bulan|か月|개월|महीन|মাস|شهر|месяц|mês|ay|månad|เดือน|மாதம்|నెల|महिना/i, days: 30 },
-  { re: /year|año|an |Jahr|tahun|年|년|साल|বছর|سنة|год|ano|yıl|år|ปี|ஆண்டு|సంవత్సరం|वर्ष/i, days: 365 },
+  // seconds
+  { days: 0, re: localeRE({
+    en: 'second',   es: 'segund',   fr: 'seconde',  de: 'Sekunde',  id: 'detik',
+    tr: 'saniye',   sv: 'sekund',
+    ja: '秒',       ko: '초',       zh: '秒',
+    ar: 'ثاني',     ru: 'секунд',
+    hi: 'सेकंड',    bn: 'সেকেন্ড',  mr: 'सेकंद',
+    th: 'วินาที',   ta: 'நொடி',     te: 'సెకన్',
+  })},
+  // minutes
+  { days: 0, re: localeRE({
+    en: 'minute',   es: 'minuto',   fr: 'minute',   de: 'Minute',   id: 'menit',
+    pt: 'minuto',   tr: 'dakika',   sv: 'minut',    vi: 'phút',
+    ja: '分',       ko: '분',
+    ar: 'دق',       ru: 'минут',
+    hi: 'मिनट',     bn: 'মিনিট',    mr: 'मिनिट',
+    th: 'นาที',     ta: 'நிமிட',    te: 'నிమిష',
+  })},
+  // hours
+  { days: 0, re: localeRE({
+    en: 'hour',     es: 'hora',     fr: 'heure',    de: 'Stunde',   id: 'jam',
+    tr: 'saat',     sv: 'timm',     vi: 'giờ',
+    ja: '時間',     ko: '시간',     zh: '小时',
+    ar: 'ساع',      ru: 'час',
+    hi: 'घंट',      bn: 'ঘণ্টা',    mr: 'तास',
+    th: 'ชั่วโมง',  ta: 'மணி',      te: 'గంట',
+  })},
+  // days
+  { days: 1, re: localeRE({
+    en: 'day',      es: 'día',      fr: 'jour',     de: 'Tag',      id: 'hari',
+    pt: 'dia',      tr: 'gün',      sv: 'dag',
+    ja: '日',       ko: '일',
+    ar: 'يوم',      ru: 'дн',
+    hi: 'दिन',      bn: 'দিন',      mr: 'दिवस',
+    th: 'วัน',      ta: 'நாள்',     te: 'రோజు',
+  })},
+  // weeks
+  { days: 7, re: localeRE({
+    en: 'week',     es: 'semana',   fr: 'semaine',  de: 'Woche',    id: 'minggu',
+    pt: 'semana',   tr: 'hafta',    sv: 'veck',
+    ja: '週',       ko: '주',
+    ar: 'أسبوع',    ru: 'недел',
+    hi: 'हफ़्त',     bn: 'সপ্তাহ',   mr: 'आठवडा',
+    th: 'สัปดาห์',  ta: 'வாரம்',    te: 'వారం',
+  })},
+  // months
+  { days: 30, re: localeRE({
+    en: 'month',    es: 'mes',      fr: 'mois',     de: 'Monat',    id: 'bulan',
+    pt: 'mês',      tr: 'ay',       sv: 'månad',
+    ja: 'か月',     ko: '개월',
+    ar: 'شهر',      ru: 'месяц',
+    hi: 'महीन',     bn: 'মাস',      mr: 'महिना',
+    th: 'เดือน',    ta: 'மாதம்',    te: 'నెల',
+  })},
+  // years
+  { days: 365, re: localeRE({
+    en: 'year',     es: 'año',      fr: 'an ',      de: 'Jahr',     id: 'tahun',
+    pt: 'ano',      tr: 'yıl',      sv: 'år',
+    ja: '年',       ko: '년',
+    ar: 'سنة',      ru: 'год',
+    hi: 'साल',      bn: 'বছর',      mr: 'वर्ष',
+    th: 'ปี',       ta: 'ஆண்டு',    te: 'సంవత్సరం',
+  })},
 ];
 
-// Matches "ago" equivalents — used to distinguish time-ago strings from channel names
-const AGO_RE = /ago|hace|il y a|vor|yang lalu|前|전|पहले|আগে|قبل|назад|há|önce|sedan|ที่ผ่านมา|முன்|క్రితం|पूर्वी|trước/i;
+// Matches "ago" equivalents — distinguishes time-ago strings from channel names
+const AGO_RE = localeRE({
+  en: 'ago',      es: 'hace',     fr: 'il y a',   de: 'vor',      id: 'yang lalu',
+  pt: 'há',       tr: 'önce',     sv: 'sedan',    vi: 'trước',
+  ja: '前',       ko: '전',       zh: '前',
+  ar: 'قبل',      ru: 'назад',
+  hi: 'पहले',     bn: 'আগে',      mr: 'पूर्वी',
+  th: 'ที่ผ่านมา', ta: 'முன்',     te: 'క్రితం',
+});
 
-// This regex is used in content.js to find the metadata row for button placement
-const VIEW_WATCHING_RE = /view|watching|scheduled|visualizaci|usuarios|vues|Aufrufe|Zuschauer|ditonton|menonton|視聴|시청|조회|व्यू|दर्शक|ভিউ|দেখছেন|مشاهد|просмотр|Зрител|visualizaç|assistindo|görüntüleme|izliyor|visning|tittare|การดู|ดูอยู่|பார்வை|பார்க்கிறார்|వీక్షణ|చూస్తున్నారు|व्ह्यू|पाहत|观看|xem/i;
+const VIEW_WATCHING_RE = localeRE({
+  en: ['view', 'watching', 'scheduled'],
+  es: ['visualizaci', 'usuarios'],    fr: 'vues',
+  de: ['Aufrufe', 'Zuschauer'],       id: ['ditonton', 'menonton'],
+  pt: ['visualizaç', 'assistindo'],   tr: ['görüntüleme', 'izliyor'],
+  sv: ['visning', 'tittare'],         vi: 'xem',
+  ja: '視聴',     ko: ['시청', '조회'],   zh: '观看',
+  ar: 'مشاهد',    ru: ['просмотр', 'Зрител'],
+  hi: ['व्यू', 'दर्शक'],              bn: ['ভিউ', 'দেখছেন'],     mr: ['व्ह्यू', 'पाहत'],
+  th: ['การดู', 'ดูอยู่'],            ta: ['பார்வை', 'பார்க்கிறார்'],
+  te: ['వీక్షణ', 'చూస్తున్నారు'],
+});
+
 
 function parseAgeDays(text) {
   if (!text) return -1;
