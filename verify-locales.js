@@ -76,7 +76,7 @@ const TIME_UNITS = [
     ja: '分',       ko: '분',
     ar: 'دق',       ru: 'минут',
     hi: 'मिनट',     bn: 'মিনিট',    mr: 'मिनिट',
-    th: 'นาที',     ta: 'நிமிட',    te: 'నிమిష',
+    th: 'นาที',     ta: 'நிமிட',    te: 'నిమిషా',
   })},
   // hours
   { days: 0, re: localeRE({
@@ -94,7 +94,7 @@ const TIME_UNITS = [
     ja: '日',       ko: '일',
     ar: 'يوم',      ru: 'дн',
     hi: 'दिन',      bn: 'দিন',      mr: 'दिवस',
-    th: 'วัน',      ta: 'நாள்',     te: 'రோజు',
+    th: 'วัน',      ta: 'நாள்',     te: 'రోజు',
   })},
   // weeks
   { days: 7, re: localeRE({
@@ -151,12 +151,12 @@ const VIEW_WATCHING_RE = localeRE({
 
 const UPCOMING_RE = localeRE({
   en: 'upcoming',         es: 'próximamente',     fr: 'à venir',
-  de: 'demnächst',        id: 'akan datang',      pt: 'em breve',
+  de: ['Anstehend', 'demnächst'], id: ['Mendatang', 'akan datang'], pt: 'em breve',
   tr: 'yakında',          sv: 'kommande',         vi: 'sắp diễn ra',
   ja: '配信予定',         ko: '예정',             zh: '即将开始',
   ar: 'قادم',             ru: 'скоро',
-  hi: 'आगामी',            bn: 'আসন্ন',            mr: 'आगामी',
-  th: 'กำลังจะมีขึ้น',    ta: 'வரவிருக்கிறது',    te: 'రాబోతోంది',
+  hi: ['जल्द ही लाइव होने वाला', 'आगामी'], bn: 'আসন্ন', mr: 'आगामी',
+  th: ['เร็วๆ นี้', 'กำลังจะมีขึ้น'], ta: 'வரவிரு', te: 'రాబో',
 });
 
 const SCHEDULED_RE = localeRE({
@@ -324,7 +324,7 @@ function waitForEnter(msg) {
       for (const raw of ageStrings) {
         const parsed = parseAgeDays(raw);
         const isAgo = AGO_RE.test(raw) || STREAMED_RE.test(raw);
-        if (!isAgo) continue;
+        if (!isAgo || VIEW_WATCHING_RE.test(raw)) continue;
         const hasStreamed = STREAMED_RE.test(raw);
         timeResults.push({
           hl,

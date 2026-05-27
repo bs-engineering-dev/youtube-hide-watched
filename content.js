@@ -89,7 +89,7 @@
       ja: '分',       ko: '분',
       ar: 'دق',       ru: 'минут',
       hi: 'मिनट',     bn: 'মিনিট',    mr: 'मिनिट',
-      th: 'นาที',     ta: 'நிமிட',    te: 'నిమిష',
+      th: 'นาที',     ta: 'நிமிட',    te: 'నిమిషా',
     })},
     // hours
     { days: 0, re: localeRE({
@@ -429,12 +429,12 @@
 
   const UPCOMING_RE = localeRE({
     en: 'upcoming',         es: 'próximamente',     fr: 'à venir',
-    de: 'demnächst',        id: 'akan datang',      pt: 'em breve',
+    de: ['Anstehend', 'demnächst'], id: ['Mendatang', 'akan datang'], pt: 'em breve',
     tr: 'yakında',          sv: 'kommande',         vi: 'sắp diễn ra',
     ja: '配信予定',         ko: '예정',             zh: '即将开始',
     ar: 'قادم',             ru: 'скоро',
-    hi: 'आगामी',            bn: 'আসন্ন',            mr: 'आगामी',
-    th: 'กำลังจะมีขึ้น',    ta: 'வரவிருக்கிறது',    te: 'రాబోతోంది',
+    hi: ['जल्द ही लाइव होने वाला', 'आगामी'], bn: 'আসন্ন', mr: 'आगामी',
+    th: ['เร็วๆ นี้', 'กำลังจะมีขึ้น'], ta: 'வரவிரு', te: 'రాబో',
   });
 
   const SCHEDULED_RE = localeRE({
