@@ -14,6 +14,14 @@
   "hideMostRelevant": { "message": "Dölj \"Mest relevant\"-sektionen", "description": "Checkbox label" },
   "hideLatest": { "message": "Dölj \"Senaste\"-sektionen", "description": "Checkbox label" },
   "hideShorts": { "message": "Dölj \"Shorts\"-sektionen", "description": "Checkbox label" },
+  "hideScheduled": {
+    "message": "Dölj schemalagda videor",
+    "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
+  },
+  "hideScheduledHint": {
+    "message": "Dölj kommande premiärer och schemalagda strömmar",
+    "description": "Hint for the hide scheduled toggle"
+  },
   "iconOnThumbnail": { "message": "Visa dölj-ikon på miniatyrbilden", "description": "Checkbox label" },
   "iconOnThumbnailHint": { "message": "När av visas ikonen bredvid videoinformation", "description": "Hint for icon placement option" },
   "videosCached": { "message": "$COUNT$ $UNIT$ cachade", "description": "Cache count display", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },

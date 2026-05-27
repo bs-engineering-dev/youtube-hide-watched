@@ -14,6 +14,14 @@
   "hideMostRelevant": { "message": "Ẩn mục “Phù hợp nhất”", "description": "Checkbox label" },
   "hideLatest": { "message": "Ẩn mục “Mới nhất”", "description": "Checkbox label" },
   "hideShorts": { "message": "Ẩn mục “Shorts”", "description": "Checkbox label" },
+  "hideScheduled": {
+    "message": "Ẩn video đã lên lịch",
+    "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
+  },
+  "hideScheduledHint": {
+    "message": "Ẩn buổi công chiếu và phát trực tiếp đã lên lịch",
+    "description": "Hint for the hide scheduled toggle"
+  },
   "iconOnThumbnail": { "message": "Hiển thị biểu tượng ẩn trên hình thu nhỏ", "description": "Checkbox label" },
   "iconOnThumbnailHint": { "message": "Khi tắt, biểu tượng sẽ hiện bên cạnh thông tin video", "description": "Hint for icon placement option" },
   "videosCached": { "message": "Đã lưu $COUNT$ $UNIT$ trong bộ nhớ đệm", "description": "Cache count display", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },

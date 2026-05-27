@@ -14,6 +14,14 @@
   "hideMostRelevant": { "message": "「관련성 높은 순」 섹션 숨기기", "description": "Checkbox label" },
   "hideLatest": { "message": "「최신」 섹션 숨기기", "description": "Checkbox label" },
   "hideShorts": { "message": "「Shorts」 섹션 숨기기", "description": "Checkbox label" },
+  "hideScheduled": {
+    "message": "예정된 동영상 숨기기",
+    "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
+  },
+  "hideScheduledHint": {
+    "message": "예정된 프리미어 및 스트림 숨기기",
+    "description": "Hint for the hide scheduled toggle"
+  },
   "iconOnThumbnail": { "message": "썸네일에 숨기기 아이콘 표시", "description": "Checkbox label" },
   "iconOnThumbnailHint": { "message": "끄면 아이콘이 동영상 정보 옆에 표시됩니다", "description": "Hint for icon placement option" },
   "videosCached": { "message": "$COUNT$ $UNIT$ 캐시됨", "description": "Cache count display", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },

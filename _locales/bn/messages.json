@@ -63,6 +63,14 @@
     "message": "\"Shorts\" বিভাগ লুকান",
     "description": "Checkbox label"
   },
+  "hideScheduled": {
+    "message": "নির্ধারিত ভিডিও লুকান",
+    "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
+  },
+  "hideScheduledHint": {
+    "message": "আসন্ন প্রিমিয়ার এবং নির্ধারিত স্ট্রিম লুকান",
+    "description": "Hint for the hide scheduled toggle"
+  },
   "iconOnThumbnail": {
     "message": "থাম্বনেইলে লুকানোর আইকন দেখান",
     "description": "Checkbox label"

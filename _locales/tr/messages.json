@@ -14,6 +14,14 @@
   "hideMostRelevant": { "message": "\"En alakalı\" bölümünü gizle", "description": "Checkbox label" },
   "hideLatest": { "message": "\"En yeni\" bölümünü gizle", "description": "Checkbox label" },
   "hideShorts": { "message": "\"Shorts\" bölümünü gizle", "description": "Checkbox label" },
+  "hideScheduled": {
+    "message": "Zamanlanmış videoları gizle",
+    "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
+  },
+  "hideScheduledHint": {
+    "message": "Yaklaşan prömiyerleri ve zamanlanmış yayınları gizle",
+    "description": "Hint for the hide scheduled toggle"
+  },
   "iconOnThumbnail": { "message": "Küçük resimde gizle simgesini göster", "description": "Checkbox label" },
   "iconOnThumbnailHint": { "message": "Kapatıldığında simge video bilgilerinin yanında görünür", "description": "Hint for icon placement option" },
   "videosCached": { "message": "$COUNT$ $UNIT$ önbellekte", "description": "Cache count display", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },

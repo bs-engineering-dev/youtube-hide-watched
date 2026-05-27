@@ -63,6 +63,14 @@
     "message": "\"Shorts\" विभाग लपवा",
     "description": "Checkbox label"
   },
+  "hideScheduled": {
+    "message": "नियोजित व्हिडिओ लपवा",
+    "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
+  },
+  "hideScheduledHint": {
+    "message": "आगामी प्रीमियर आणि नियोजित स्ट्रीम लपवा",
+    "description": "Hint for the hide scheduled toggle"
+  },
   "iconOnThumbnail": {
     "message": "थंबनेलवर लपवा चिन्ह दाखवा",
     "description": "Checkbox label"

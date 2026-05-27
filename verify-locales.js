@@ -137,7 +137,7 @@ const AGO_RE = localeRE({
 
 const VIEW_WATCHING_RE = localeRE({
   en: ['view', 'watching', 'scheduled'],
-  es: ['visualizaci', 'usuarios'],    fr: 'vues',
+  es: ['visualizaci', 'usuarios'],    fr: ['vues', 'spectateur'],
   de: ['Aufrufe', 'Zuschauer'],       id: ['ditonton', 'menonton'],
   pt: ['visualizaç', 'assistindo'],   tr: ['görüntüleme', 'izliyor'],
   sv: ['visning', 'tittare'],         vi: 'xem',
@@ -149,9 +149,30 @@ const VIEW_WATCHING_RE = localeRE({
 });
 
 
+const UPCOMING_RE = localeRE({
+  en: 'upcoming',         es: 'próximamente',     fr: 'à venir',
+  de: 'demnächst',        id: 'akan datang',      pt: 'em breve',
+  tr: 'yakında',          sv: 'kommande',         vi: 'sắp diễn ra',
+  ja: '配信予定',         ko: '예정',             zh: '即将开始',
+  ar: 'قادم',             ru: 'скоро',
+  hi: 'आगामी',            bn: 'আসন্ন',            mr: 'आगामी',
+  th: 'กำลังจะมีขึ้น',    ta: 'வரவிருக்கிறது',    te: 'రాబోతోంది',
+});
+
+const SCHEDULED_RE = localeRE({
+  en: 'scheduled for',    es: 'programado',       fr: 'planifié',
+  de: 'geplant',          id: 'dijadwalkan',      pt: 'agendado',
+  tr: 'planlanmış',       sv: 'schemalagd',       vi: 'đã lên lịch',
+  ja: '予定',             ko: '예정',             zh: '排期',
+  ar: 'مجدول',            ru: 'запланир',
+  hi: 'शेड्यूल',          bn: 'নির্ধারিত',        mr: 'नियोजित',
+  th: 'กำหนดเวลา',        ta: 'திட்டமிட',         te: 'షెడ్యూల్',
+});
+
 function parseAgeDays(text) {
   if (!text) return -1;
-  const t = text.replace(STREAMED_RE, "");
+  const t = text.replace(STREAMED_RE, "").replace(/[​-‏﻿]/g, "");
+  if (!AGO_RE.test(t)) return -1;
   const numMatch = t.match(/(\d+)/);
   if (!numMatch) return -1;
   const n = parseInt(numMatch[1], 10);
@@ -206,6 +227,7 @@ function waitForEnter(msg) {
   const sectionResults = [];
   const timeResults = [];
   const metadataResults = [];
+  const upcomingResults = [];
 
   browser = await chromium.launchPersistentContext(PROFILE_DIR, {
     headless: false,
@@ -301,20 +323,14 @@ function waitForEnter(msg) {
 
       for (const raw of ageStrings) {
         const parsed = parseAgeDays(raw);
-        const isView = VIEW_WATCHING_RE.test(raw);
         const isAgo = AGO_RE.test(raw) || STREAMED_RE.test(raw);
+        if (!isAgo) continue;
         const hasStreamed = STREAMED_RE.test(raw);
-        // Skip strings that aren't time-ago or view/watching (e.g. channel names)
-        if (parsed < 0 && !isView && !isAgo) continue;
-        let status;
-        if (parsed >= 0) status = `${parsed} days`;
-        else if (isView) status = "VIEW";
-        else status = "FAILED";
         timeResults.push({
           hl,
           text: raw,
           streamed: hasStreamed ? "YES" : "",
-          parsed: status,
+          parsed: parsed >= 0 ? `${parsed} days` : "FAILED",
         });
       }
 
@@ -322,20 +338,48 @@ function waitForEnter(msg) {
         timeResults.push({ hl, text: "(no age strings)", streamed: "", parsed: "SKIP" });
       }
 
-      // Check view/watching/scheduled regex against metadata
-      // Filter out strings that are age strings (already handled by TIME_UNITS)
-      const viewOnly = viewStrings.filter((s) => parseAgeDays(s) < 0);
+      // Check view/watching regex against metadata spans.
+      // Filter out age strings and non-view strings (scheduled, etc.)
       let anyViewMatch = false;
-      for (const raw of viewOnly) {
+      for (const raw of viewStrings) {
+        if (parseAgeDays(raw) >= 0) continue;
         const matched = VIEW_WATCHING_RE.test(raw);
-        if (matched) anyViewMatch = true;
-        metadataResults.push({ hl, text: raw, viewMatch: matched ? "YES" : "NO" });
+        if (!matched) continue;
+        anyViewMatch = true;
+        metadataResults.push({ hl, text: raw, viewMatch: "YES" });
       }
-      if (!anyViewMatch && viewOnly.length > 0) {
+      if (!anyViewMatch) {
         metadataResults.push({ hl, text: "(NO STRINGS MATCHED)", viewMatch: "FAIL" });
       }
 
-      console.log(`${hl}: ${titles.length} section(s), ${ageStrings.length} age(s), ${viewStrings.length} metadata(s)`);
+      // --- Upcoming/scheduled badge text (skip video durations) ---
+      const badgeTexts = await page.evaluate(() => {
+        const badges = new Set();
+        for (const el of document.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer')) {
+          const badge = el.querySelector('yt-thumbnail-badge-view-model');
+          if (badge) {
+            const text = badge.textContent.trim();
+            if (text && !/^\d[\d:.]*$/.test(text)) badges.add(text);
+          }
+        }
+        return [...badges];
+      });
+
+      for (const text of badgeTexts) {
+        upcomingResults.push({ hl, text, upcomingMatch: UPCOMING_RE.test(text) ? "YES" : "NO" });
+      }
+      if (badgeTexts.length === 0) {
+        upcomingResults.push({ hl, text: "(none found)", upcomingMatch: "SKIP" });
+      }
+
+      // --- Scheduled metadata text (from already-collected viewStrings) ---
+      for (const text of viewStrings) {
+        if (SCHEDULED_RE.test(text)) {
+          upcomingResults.push({ hl, text, upcomingMatch: "SCHEDULED" });
+        }
+      }
+
+      console.log(`${hl}: ${titles.length} section(s), ${ageStrings.length} age(s), ${viewStrings.length} metadata(s), ${badgeTexts.length} badge(s)`);
     } catch (e) {
       sectionResults.push({ hl, title: "", match: "ERROR: " + e.message });
       console.log(`${hl}: ERROR - ${e.message}`);
@@ -364,6 +408,9 @@ function waitForEnter(msg) {
 
   console.log("\n=== METADATA VIEW/WATCHING MATCH ===\n");
   console.table(metadataResults);
+
+  console.log("\n=== UPCOMING/SCHEDULED BADGE TEXT ===\n");
+  console.table(upcomingResults);
 
   const sectionFails = sectionResults.filter((r) => r.match === "UNMATCHED");
   const timeFails = timeResults.filter((r) => r.parsed === "FAILED");

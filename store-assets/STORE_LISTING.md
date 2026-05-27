@@ -28,6 +28,7 @@ The extension detects YouTube's built-in progress bars on video thumbnails. If a
 - Adjustable watch threshold — set the minimum percentage before a video is hidden
 - Subscriptions max age — hide videos older than a set number of days and stop loading more once everything is past the cutoff
 - Optionally hide the "Most relevant" section on Subscriptions
+- Hide scheduled videos — upcoming premieres and scheduled streams can be hidden
 - Undo support when you accidentally mark a video
 - Works with YouTube's dark mode
 - Localized in 20 languages

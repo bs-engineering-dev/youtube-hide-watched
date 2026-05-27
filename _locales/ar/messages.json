@@ -14,6 +14,14 @@
   "hideMostRelevant": { "message": "إخفاء قسم \"الأكثر صلة\"", "description": "Checkbox label" },
   "hideLatest": { "message": "إخفاء قسم \"الأحدث\"", "description": "Checkbox label" },
   "hideShorts": { "message": "إخفاء قسم \"Shorts\"", "description": "Checkbox label" },
+  "hideScheduled": {
+    "message": "إخفاء الفيديوهات المجدولة",
+    "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
+  },
+  "hideScheduledHint": {
+    "message": "إخفاء العروض الأولى والبث المباشر المجدول",
+    "description": "Hint for the hide scheduled toggle"
+  },
   "iconOnThumbnail": { "message": "إظهار أيقونة الإخفاء على الصورة المصغرة", "description": "Checkbox label" },
   "iconOnThumbnailHint": { "message": "عند الإيقاف، تظهر الأيقونة بجوار بيانات الفيديو الوصفية", "description": "Hint for icon placement option" },
   "videosCached": { "message": "$COUNT$ $UNIT$ في ذاكرة التخزين المؤقت", "description": "Cache count display", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },

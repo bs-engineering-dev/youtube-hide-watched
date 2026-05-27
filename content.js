@@ -15,7 +15,7 @@
   const CACHE_TARGET_BYTES = 7_000_000;
   const CACHE_CHECK_COUNT = 200_000;
 
-  let config = { enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false };
+  let config = { enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, iconOnThumbnail: false };
   let cache = {};
   let observer = null;
   let debounceTimer = null;
@@ -62,6 +62,15 @@
     hi: 'लाइव स्ट्रीम',    bn: 'লাইভ স্ট্রিম',        mr: 'लाइव्ह स्ट्रीम',
     th: 'ถ่ายทอดสด',        ta: 'நேரலை',                te: 'ప్రత్యక్ష ప్రసారం',
   }, s => `^(${s})\\s*`);
+
+  const AGO_RE = localeRE({
+    en: 'ago',      es: 'hace',     fr: 'il y a',   de: 'vor',      id: 'yang lalu',
+    pt: 'há',       tr: 'önce',     sv: 'sedan',    vi: 'trước',
+    ja: '前',       ko: '전',       zh: '前',
+    ar: 'قبل',      ru: 'назад',
+    hi: 'पहले',     bn: 'আগে',      mr: 'पूर्वी',
+    th: 'ที่ผ่านมา', ta: 'முன்',     te: 'క్రితం',
+  });
 
   const TIME_UNITS = [
     // seconds
@@ -131,7 +140,7 @@
 
   const VIEW_WATCHING_RE = localeRE({
     en: ['view', 'watching', 'scheduled'],
-    es: ['visualizaci', 'usuarios'],    fr: 'vues',
+    es: ['visualizaci', 'usuarios'],    fr: ['vues', 'spectateur'],
     de: ['Aufrufe', 'Zuschauer'],       id: ['ditonton', 'menonton'],
     pt: ['visualizaç', 'assistindo'],   tr: ['görüntüleme', 'izliyor'],
     sv: ['visning', 'tittare'],         vi: 'xem',
@@ -150,10 +159,10 @@
   async function init() {
     try {
       const [syncData, localData] = await Promise.all([
-        chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, iconOnThumbnail: false }),
+        chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, iconOnThumbnail: false }),
         chrome.storage.local.get({ cache: {} }),
       ]);
-      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, hideShorts: syncData.hideShorts, iconOnThumbnail: syncData.iconOnThumbnail };
+      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, hideShorts: syncData.hideShorts, hideScheduled: syncData.hideScheduled, iconOnThumbnail: syncData.iconOnThumbnail };
       cache = localData.cache;
       manageCacheSize();
     } catch (e) {
@@ -207,6 +216,7 @@
       if (changes.hideMostRelevant) config.hideMostRelevant = changes.hideMostRelevant.newValue;
       if (changes.hideLatest) config.hideLatest = changes.hideLatest.newValue;
       if (changes.hideShorts) config.hideShorts = changes.hideShorts.newValue;
+      if (changes.hideScheduled) config.hideScheduled = changes.hideScheduled.newValue;
       if (changes.iconOnThumbnail) {
         config.iconOnThumbnail = changes.iconOnThumbnail.newValue;
         document.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
@@ -389,7 +399,8 @@
 
   function parseAgeDays(text) {
     if (!text) return -1;
-    const t = text.replace(STREAMED_RE, '');
+    const t = text.replace(STREAMED_RE, '').replace(/[​-‏﻿]/g, '');
+    if (!AGO_RE.test(t)) return -1;
     const numMatch = t.match(/(\d+)/);
     if (!numMatch) return -1;
     const n = parseInt(numMatch[1], 10);
@@ -416,6 +427,39 @@
     return age >= 0 && age > config.maxAgeDays;
   }
 
+  const UPCOMING_RE = localeRE({
+    en: 'upcoming',         es: 'próximamente',     fr: 'à venir',
+    de: 'demnächst',        id: 'akan datang',      pt: 'em breve',
+    tr: 'yakında',          sv: 'kommande',         vi: 'sắp diễn ra',
+    ja: '配信予定',         ko: '예정',             zh: '即将开始',
+    ar: 'قادم',             ru: 'скоро',
+    hi: 'आगामी',            bn: 'আসন্ন',            mr: 'आगामी',
+    th: 'กำลังจะมีขึ้น',    ta: 'வரவிருக்கிறது',    te: 'రాబోతోంది',
+  });
+
+  const SCHEDULED_RE = localeRE({
+    en: 'scheduled for',    es: 'programado',       fr: 'planifié',
+    de: 'geplant',          id: 'dijadwalkan',      pt: 'agendado',
+    tr: 'planlanmış',       sv: 'schemalagd',       vi: 'đã lên lịch',
+    ja: '予定',             ko: '예정',             zh: '排期',
+    ar: 'مجدول',            ru: 'запланир',
+    hi: 'शेड्यूल',          bn: 'নির্ধারিত',        mr: 'नियोजित',
+    th: 'กำหนดเวลา',        ta: 'திட்டமிட',         te: 'షెడ్యూల్',
+  });
+
+  function isScheduled(el) {
+    const badges = el.querySelectorAll('.ytBadgeShapeText');
+    for (const badge of badges) {
+      if (UPCOMING_RE.test(badge.textContent.trim())) return true;
+    }
+    if (el.querySelector('[overlay-style="UPCOMING"]')) return true;
+    const meta = el.querySelectorAll('.ytContentMetadataViewModelMetadataText, #metadata-line span, .inline-metadata-item');
+    for (const span of meta) {
+      if (SCHEDULED_RE.test(span.textContent)) return true;
+    }
+    return false;
+  }
+
   function isWatched(el, id) {
     if (id && cache[id]) return true;
     if (el.querySelector('yt-thumbnail-overlay-full-view-model')) return true;
@@ -440,6 +484,18 @@
 
     if (el.dataset.hwAgeHidden) {
       delete el.dataset.hwAgeHidden;
+      el.classList.remove('hw-hidden');
+    }
+
+    if (config.hideScheduled && isScheduled(el)) {
+      el.classList.add('hw-hidden');
+      el.dataset.hwScheduledHidden = '1';
+      el.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
+      return;
+    }
+
+    if (el.dataset.hwScheduledHidden) {
+      delete el.dataset.hwScheduledHidden;
       el.classList.remove('hw-hidden');
     }
 
@@ -676,6 +732,9 @@
     );
     document.querySelectorAll('[data-hw-age-hidden]').forEach((e) =>
       delete e.dataset.hwAgeHidden
+    );
+    document.querySelectorAll('[data-hw-scheduled-hidden]').forEach((e) =>
+      delete e.dataset.hwScheduledHidden
     );
     document.querySelectorAll('.hw-section-hidden').forEach((e) => {
       if (e.dataset.hwForceHidden) return;

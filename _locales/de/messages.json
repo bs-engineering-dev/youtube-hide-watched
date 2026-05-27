@@ -14,6 +14,14 @@
   "hideMostRelevant": { "message": "Bereich „Am relevantesten“ ausblenden", "description": "Checkbox label" },
   "hideLatest": { "message": "Bereich „Neueste“ ausblenden", "description": "Checkbox label" },
   "hideShorts": { "message": "Bereich „Shorts“ ausblenden", "description": "Checkbox label" },
+  "hideScheduled": {
+    "message": "Geplante Videos ausblenden",
+    "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
+  },
+  "hideScheduledHint": {
+    "message": "Anstehende Premieren und geplante Streams ausblenden",
+    "description": "Hint for the hide scheduled toggle"
+  },
   "iconOnThumbnail": { "message": "Symbol auf dem Vorschaubild anzeigen", "description": "Checkbox label" },
   "iconOnThumbnailHint": { "message": "Wenn deaktiviert, erscheint das Symbol neben den Video-Metadaten", "description": "Hint for icon placement option" },
   "videosCached": { "message": "$COUNT$ $UNIT$ zwischengespeichert", "description": "Cache count display", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },

@@ -63,6 +63,14 @@
     "message": "\"Shorts\" பகுதியை மறை",
     "description": "Checkbox label"
   },
+  "hideScheduled": {
+    "message": "திட்டமிடப்பட்ட வீடியோக்களை மறை",
+    "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
+  },
+  "hideScheduledHint": {
+    "message": "வரவிருக்கும் பிரீமியர்கள் மற்றும் திட்டமிட்ட ஸ்ட்ரீம்களை மறை",
+    "description": "Hint for the hide scheduled toggle"
+  },
   "iconOnThumbnail": {
     "message": "சிறுபடத்தில் மறைப்பு ஐகானைக் காட்டு",
     "description": "Checkbox label"

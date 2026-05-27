@@ -12,6 +12,7 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 - **Hide "Most relevant" section** on the Subscriptions page (optional, on by default)
 - **Hide "Latest" section** on the Subscriptions page (optional, on by default)
 - **Hide "Shorts" sections** on the home page and Subscriptions page (optional, off by default)
+- **Hide scheduled videos** — hide upcoming premieres and scheduled streams (optional, off by default)
 - **Undo support** — accidentally mark something? An undo card appears for 60 seconds
 - **Dark mode** support — follows YouTube's theme
 
@@ -60,6 +61,7 @@ Found a bug or have a feature request? [Open an issue on GitHub](https://github.
 - **Hide "Most relevant"** — Toggle the "Most relevant" section on the Subscriptions page
 - **Hide "Latest"** — Toggle the "Latest" section on the Subscriptions page
 - **Hide "Shorts"** — Toggle Shorts sections on the home page and Subscriptions page
+- **Hide scheduled videos** — Hide upcoming premieres and scheduled live streams
 - **Clear cache** — Remove all manually marked videos
 
 ## Browser compatibility
