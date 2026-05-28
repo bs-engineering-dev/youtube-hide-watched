@@ -64,6 +64,10 @@ Found a bug or have a feature request? [Open an issue on GitHub](https://github.
 - **Hide scheduled videos** — Hide upcoming premieres and scheduled live streams
 - **Clear cache** — Remove all manually marked videos
 
+## Localization (beta)
+
+The extension UI is translated into 20 languages. Translations are machine-generated and may contain errors — if you spot an issue, please [open an issue](https://github.com/bs-engineering-dev/youtube-hide-watched/issues) and let us know.
+
 ## Browser compatibility
 
 This extension works on desktop Chromium-based browsers: Chrome, Edge, Brave, Helium, Opera, and others. It does not work on mobile browsers — Chrome for Android, Safari on iOS, and other mobile browsers do not support Chrome extensions.

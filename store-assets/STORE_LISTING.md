@@ -31,7 +31,7 @@ The extension detects YouTube's built-in progress bars on video thumbnails. If a
 - Hide scheduled videos — upcoming premieres and scheduled streams can be hidden
 - Undo support when you accidentally mark a video
 - Works with YouTube's dark mode
-- Localized in 20 languages
+- Localized in 20 languages (translations are in beta — report issues on GitHub)
 - Settings sync across your Chrome devices
 
 **Pin it to your toolbar**
@@ -60,6 +60,8 @@ https://github.com/bs-engineering-dev/youtube-hide-watched/
 
 This extension does not collect, transmit, or share any data. All settings and marked videos are stored locally in your browser. It does not access your Google account or YouTube watch history.
 
-## Languages
+## Languages (beta)
 
 English, Arabic, Bengali, Chinese (Simplified), French, German, Hindi, Indonesian, Japanese, Korean, Marathi, Portuguese (Brazil), Russian, Spanish, Swedish, Tamil, Telugu, Thai, Turkish, Vietnamese
+
+Translations are machine-generated and may not be perfect. If you notice an issue, please report it on GitHub.
