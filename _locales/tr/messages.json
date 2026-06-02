@@ -1,19 +1,72 @@
 {
-  "extName": { "message": "İzlenen YouTube Videolarını Gizle", "description": "Extension name shown in browser and store" },
-  "extDescription": { "message": "YouTube abonelik sayfanızdaki izlenmiş videoları gizler ve yalnızca izlenmemiş içerikleri gösterir.", "description": "Extension description shown in browser and store" },
-  "hideWatchedVideos": { "message": "İzlenen videoları gizle", "description": "Toggle label in popup" },
-  "markAllWatched": { "message": "Tümünü İzlendi Olarak İşaretle", "description": "Button to mark all visible videos as watched" },
-  "watchThreshold": { "message": "İzleme eşiği:", "description": "Label for threshold slider" },
-  "thresholdHint": { "message": "Bu yüzdenin üzerinde izlenen videoları gizle", "description": "Hint text below threshold slider" },
-  "subsMaxAge": { "message": "Aboneliklerde maksimum süre:", "description": "Label for max age slider" },
-  "maxAgeHint": { "message": "Aboneliklerde bundan eski videoları gizle (0 = kapalı)", "description": "Hint text below max age slider" },
-  "maxAgeOff": { "message": "Kapalı", "description": "Displayed when max age is disabled" },
-  "maxAgeDays": { "message": "$COUNT$ $UNIT$", "description": "Max age display like '7 days' or '1 day'", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },
-  "dayUnit": { "message": "gün", "description": "Singular day unit" },
-  "daysUnit": { "message": "gün", "description": "Plural days unit" },
-  "hideMostRelevant": { "message": "\"En alakalı\" bölümünü gizle", "description": "Checkbox label" },
-  "hideLatest": { "message": "\"En yeni\" bölümünü gizle", "description": "Checkbox label" },
-  "hideShorts": { "message": "\"Shorts\" bölümünü gizle", "description": "Checkbox label" },
+  "extName": {
+    "message": "İzlenen YouTube Videolarını Gizle",
+    "description": "Extension name shown in browser and store"
+  },
+  "extDescription": {
+    "message": "YouTube abonelik sayfanızdaki izlenmiş videoları gizler ve yalnızca izlenmemiş içerikleri gösterir.",
+    "description": "Extension description shown in browser and store"
+  },
+  "hideWatchedVideos": {
+    "message": "İzlenen videoları gizle",
+    "description": "Toggle label in popup"
+  },
+  "markAllWatched": {
+    "message": "Tümünü İzlendi Olarak İşaretle",
+    "description": "Button to mark all visible videos as watched"
+  },
+  "watchThreshold": {
+    "message": "İzleme eşiği:",
+    "description": "Label for threshold slider"
+  },
+  "thresholdHint": {
+    "message": "Bu yüzdenin üzerinde izlenen videoları gizle",
+    "description": "Hint text below threshold slider"
+  },
+  "subsMaxAge": {
+    "message": "Aboneliklerde maksimum süre:",
+    "description": "Label for max age slider"
+  },
+  "maxAgeHint": {
+    "message": "Aboneliklerde bundan eski videoları gizle (0 = kapalı)",
+    "description": "Hint text below max age slider"
+  },
+  "maxAgeOff": {
+    "message": "Kapalı",
+    "description": "Displayed when max age is disabled"
+  },
+  "maxAgeDays": {
+    "message": "$COUNT$ $UNIT$",
+    "description": "Max age display like '7 days' or '1 day'",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "dayUnit": {
+    "message": "gün",
+    "description": "Singular day unit"
+  },
+  "daysUnit": {
+    "message": "gün",
+    "description": "Plural days unit"
+  },
+  "hideMostRelevant": {
+    "message": "\"En alakalı\" bölümünü gizle",
+    "description": "Checkbox label"
+  },
+  "hideLatest": {
+    "message": "\"En yeni\" bölümünü gizle",
+    "description": "Checkbox label"
+  },
+  "hideShorts": {
+    "message": "\"Shorts\" bölümünü gizle",
+    "description": "Checkbox label"
+  },
   "hideScheduled": {
     "message": "Zamanlanmış videoları gizle",
     "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
@@ -22,20 +75,105 @@
     "message": "Yaklaşan prömiyerleri ve zamanlanmış yayınları gizle",
     "description": "Hint for the hide scheduled toggle"
   },
-  "iconOnThumbnail": { "message": "Küçük resimde gizle simgesini göster", "description": "Checkbox label" },
-  "iconOnThumbnailHint": { "message": "Kapatıldığında simge video bilgilerinin yanında görünür", "description": "Hint for icon placement option" },
-  "videosCached": { "message": "$COUNT$ $UNIT$ önbellekte", "description": "Cache count display", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },
-  "videoUnit": { "message": "video", "description": "Singular video unit" },
-  "videosUnit": { "message": "video", "description": "Plural videos unit" },
-  "clearCache": { "message": "Önbelleği temizle", "description": "Button to clear the cache" },
-  "cacheWarning": { "message": "Önbellek depolama sınırına yaklaşıyor. En eski girişler otomatik olarak kaldırılacak.", "description": "Warning shown when cache is almost full" },
-  "cacheCleared": { "message": "Önbellek temizlendi", "description": "Status message after clearing cache" },
-  "saved": { "message": "Kaydedildi", "description": "Status message after saving a setting" },
-  "markedCount": { "message": "$COUNT$ işaretlendi", "description": "Shown after marking all videos", "placeholders": { "count": { "content": "$1" } } },
-  "noVideosFound": { "message": "Video bulunamadı", "description": "Shown when mark all finds no videos" },
-  "hiddenCount": { "message": "$COUNT$ izlenmiş $UNIT$ gizlendi", "description": "Hidden video count in popup", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },
-  "markAsWatched": { "message": "İzlendi olarak işaretle", "description": "Tooltip for the eye icon button" },
-  "videoHidden": { "message": "Video gizlendi", "description": "Text shown in the undo card" },
-  "undo": { "message": "Geri al", "description": "Undo button text" },
-  "ageCutoff": { "message": "Yalnızca son $COUNT$ $UNIT$ içindeki videolar gösteriliyor", "description": "Banner shown when age cutoff is active", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } }
+  "iconOnThumbnail": {
+    "message": "Küçük resimde gizle simgesini göster",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnailHint": {
+    "message": "Kapatıldığında simge video bilgilerinin yanında görünür",
+    "description": "Hint for icon placement option"
+  },
+  "videosCached": {
+    "message": "$COUNT$ $UNIT$ önbellekte",
+    "description": "Cache count display",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "videoUnit": {
+    "message": "video",
+    "description": "Singular video unit"
+  },
+  "videosUnit": {
+    "message": "video",
+    "description": "Plural videos unit"
+  },
+  "clearCache": {
+    "message": "Önbelleği temizle",
+    "description": "Button to clear the cache"
+  },
+  "cacheWarning": {
+    "message": "Önbellek depolama sınırına yaklaşıyor. En eski girişler otomatik olarak kaldırılacak.",
+    "description": "Warning shown when cache is almost full"
+  },
+  "cacheCleared": {
+    "message": "Önbellek temizlendi",
+    "description": "Status message after clearing cache"
+  },
+  "saved": {
+    "message": "Kaydedildi",
+    "description": "Status message after saving a setting"
+  },
+  "markedCount": {
+    "message": "$COUNT$ işaretlendi",
+    "description": "Shown after marking all videos",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "noVideosFound": {
+    "message": "Video bulunamadı",
+    "description": "Shown when mark all finds no videos"
+  },
+  "hiddenCount": {
+    "message": "$COUNT$ izlenmiş $UNIT$ gizlendi",
+    "description": "Hidden video count in popup",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "markAsWatched": {
+    "message": "İzlendi olarak işaretle",
+    "description": "Tooltip for the eye icon button"
+  },
+  "videoHidden": {
+    "message": "Video gizlendi",
+    "description": "Text shown in the undo card"
+  },
+  "undo": {
+    "message": "Geri al",
+    "description": "Undo button text"
+  },
+  "ageCutoff": {
+    "message": "Yalnızca son $COUNT$ $UNIT$ içindeki videolar gösteriliyor",
+    "description": "Banner shown when age cutoff is active",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "hidePlayables": {
+    "message": "Playables gizle",
+    "description": "Checkbox label for hiding YouTube mini-games"
+  },
+  "hidePlayablesHint": {
+    "message": "YouTube mini oyunlarını beslemeden gizle",
+    "description": "Hint for the hide playables toggle"
+  }
 }

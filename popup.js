@@ -8,6 +8,7 @@ const hideMostRelevant = document.getElementById('hideMostRelevant');
 const hideLatest = document.getElementById('hideLatest');
 const hideShorts = document.getElementById('hideShorts');
 const hideScheduled = document.getElementById('hideScheduled');
+const hidePlayables = document.getElementById('hidePlayables');
 const iconOnThumbnail = document.getElementById('iconOnThumbnail');
 const cacheCount = document.getElementById('cache-count');
 const cacheWarning = document.getElementById('cache-warning');
@@ -48,7 +49,7 @@ function formatMaxAge(val) {
   }
 })();
 
-chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, iconOnThumbnail: false }, (data) => {
+chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }, (data) => {
   toggle.checked = data.enabled;
   threshold.value = data.threshold;
   display.textContent = data.threshold + '%';
@@ -58,6 +59,7 @@ chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRe
   hideLatest.checked = data.hideLatest;
   hideShorts.checked = data.hideShorts;
   hideScheduled.checked = data.hideScheduled;
+  hidePlayables.checked = data.hidePlayables;
   iconOnThumbnail.checked = data.iconOnThumbnail;
 });
 
@@ -122,6 +124,11 @@ hideShorts.addEventListener('change', () => {
 
 hideScheduled.addEventListener('change', () => {
   chrome.storage.sync.set({ hideScheduled: hideScheduled.checked });
+  flash(msg('saved'));
+});
+
+hidePlayables.addEventListener('change', () => {
+  chrome.storage.sync.set({ hidePlayables: hidePlayables.checked });
   flash(msg('saved'));
 });
 

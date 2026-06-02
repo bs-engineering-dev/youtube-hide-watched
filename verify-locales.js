@@ -13,6 +13,20 @@
 // After sign-in the script runs unattended (~5 min) and prints a report.
 // Requires: playwright (already a dev dependency).
 // Creates a temporary Chromium profile in os.tmpdir(); cleaned up on exit.
+//
+// ── Fixing locale misses ──────────────────────────────────────
+// When this script reports failures, fix them by APPENDING new
+// patterns to the existing regex maps in BOTH content.js and this
+// file. Do NOT replace existing patterns — YouTube shows either
+// the full form or the abbreviation depending on context.
+//
+// Convert the entry to an array if it isn't one already:
+//   Before:  tr: 'dakika'
+//   After:   tr: ['dakika', 'dk\\.']
+//
+// For metadata (VIEW_WATCHING_RE) failures, check the "unmatched
+// candidates" column to see what YouTube actually rendered, then
+// add the distinguishing substring to the map.
 
 const { chromium } = require("playwright");
 const path = require("path");
@@ -53,7 +67,7 @@ const STREAMED_RE = localeRE({
   en: 'streamed',         es: 'emitido',              fr: 'diffusé',
   de: 'gestreamt',        id: 'disiarkan',            pt: 'transmitido',
   tr: 'canlı yayın',     sv: 'strömmade',
-  ja: 'ライブ配信',       ko: '실시간 스트리밍',      zh: '直播',
+  ja: 'ライブ配信',       ko: ['실시간 스트리밍', '스트리밍 시간'],      zh: '直播',
   ar: 'بث مباشر',         ru: 'трансляция',
   hi: 'लाइव स्ट्रीम',    bn: 'লাইভ স্ট্রিম',        mr: 'लाइव्ह स्ट्रीम',
   th: 'ถ่ายทอดสด',        ta: 'நேரலை',                te: 'ప్రత్యక్ష ప్రసారం',
@@ -71,25 +85,25 @@ const TIME_UNITS = [
   })},
   // minutes
   { days: 0, re: localeRE({
-    en: 'minute',   es: 'minuto',   fr: 'minute',   de: 'Minute',   id: 'menit',
-    pt: 'minuto',   tr: 'dakika',   sv: 'minut',    vi: 'phút',
+    en: 'minute',   es: 'minuto',   fr: ['minute', '\\bmin\\b'],   de: ['Minute', 'Min\\.'],   id: 'menit',
+    pt: ['minuto', 'min\\.'],   tr: ['dakika', 'dk\\.'],   sv: 'minut',    vi: 'phút',
     ja: '分',       ko: '분',
-    ar: 'دق',       ru: 'минут',
-    hi: 'मिनट',     bn: 'মিনিট',    mr: 'मिनिट',
-    th: 'นาที',     ta: 'நிமிட',    te: 'నిమిషా',
+    ar: 'دق',       ru: ['минут', 'мин\\.'],
+    hi: ['मिनट', 'मि॰'],     bn: 'মিনিট',    mr: ['मिनिट', 'मिनि\\.'],
+    th: 'นาที',     ta: ['நிமிட', 'நிமி\\.'],    te: ['నిమిషా', 'నిమి'],
   })},
   // hours
   { days: 0, re: localeRE({
-    en: 'hour',     es: 'hora',     fr: 'heure',    de: 'Stunde',   id: 'jam',
-    tr: 'saat',     sv: 'timm',     vi: 'giờ',
+    en: ['hour', '\\dh'],     es: ['hora', '\\sh\\b'],     fr: ['heure', '\\sh\\b'],    de: ['Stunde', 'Std\\.'],   id: 'jam', pt: ['hora', '\\sh\\b'],
+    tr: ['saat', 'sa\\.'],     sv: ['timm', '\\btim\\b'],     vi: 'giờ',
     ja: '時間',     ko: '시간',     zh: '小时',
-    ar: 'ساع',      ru: 'час',
-    hi: 'घंट',      bn: 'ঘণ্টা',    mr: 'तास',
-    th: 'ชั่วโมง',  ta: 'மணி',      te: 'గంట',
+    ar: 'ساع',      ru: ['час', 'ч'],
+    hi: ['घंट', 'घं'],      bn: 'ঘণ্টা',    mr: 'तास',
+    th: 'ชั่วโมง',  ta: ['மணி', 'ம\\.'],      te: ['గంట', 'గం'],
   })},
   // days
   { days: 1, re: localeRE({
-    en: 'day',      es: 'día',      fr: 'jour',     de: 'Tag',      id: 'hari',
+    en: ['day', '\\dd'],      es: ['día', '\\bd\\b'],      fr: 'jour',     de: 'Tag',      id: 'hari',
     pt: 'dia',      tr: 'gün',      sv: 'dag',
     ja: '日',       ko: '일',
     ar: 'يوم',      ru: 'дн',
@@ -228,6 +242,7 @@ function waitForEnter(msg) {
   const timeResults = [];
   const metadataResults = [];
   const upcomingResults = [];
+  const playableResults = [];
 
   browser = await chromium.launchPersistentContext(PROFILE_DIR, {
     headless: false,
@@ -247,6 +262,60 @@ function waitForEnter(msg) {
       }]);
       await page.close();
       page = await browser.newPage();
+
+      // --- Playables check (home page) ---
+      await page.goto("https://www.youtube.com", {
+        waitUntil: "domcontentloaded",
+        timeout: 20000,
+      });
+
+      // dismiss consent
+      try {
+        const btn = page.locator(
+          'button:has-text("Reject all"), button:has-text("Reject the use"), button:has-text("Confirm")'
+        );
+        await btn.first().click({ timeout: 3000 });
+        await page.waitForTimeout(2000);
+      } catch {}
+
+      try {
+        await page.waitForSelector("ytd-rich-item-renderer", { timeout: 10000 });
+        await page.waitForTimeout(2000);
+      } catch {}
+
+      const playableInfo = await page.evaluate(() => {
+        const cards = document.querySelectorAll("ytd-mini-game-card-view-model");
+        const results = [];
+        for (const card of cards) {
+          const renderer = card.closest("ytd-rich-item-renderer");
+          const link = card.querySelector('a[href*="/playables/"]');
+          results.push({
+            inRenderer: !!renderer,
+            hasPlayableLink: !!link,
+            href: link ? link.getAttribute("href") : null,
+          });
+        }
+        return results;
+      });
+
+      if (playableInfo.length > 0) {
+        const allDetectable = playableInfo.every((p) => p.inRenderer);
+        playableResults.push({
+          hl,
+          count: playableInfo.length,
+          allInRenderer: allDetectable ? "YES" : "NO",
+          sampleHref: playableInfo[0].href || "(none)",
+        });
+      } else {
+        playableResults.push({
+          hl,
+          count: 0,
+          allInRenderer: "N/A",
+          sampleHref: "(no playables found)",
+        });
+      }
+
+      // --- Subscriptions page ---
       await page.goto("https://www.youtube.com/feed/subscriptions", {
         waitUntil: "domcontentloaded",
         timeout: 20000,
@@ -341,15 +410,19 @@ function waitForEnter(msg) {
       // Check view/watching regex against metadata spans.
       // Filter out age strings and non-view strings (scheduled, etc.)
       let anyViewMatch = false;
+      const unmatchedMeta = [];
       for (const raw of viewStrings) {
         if (parseAgeDays(raw) >= 0) continue;
         const matched = VIEW_WATCHING_RE.test(raw);
-        if (!matched) continue;
+        if (!matched) {
+          unmatchedMeta.push(raw);
+          continue;
+        }
         anyViewMatch = true;
         metadataResults.push({ hl, text: raw, viewMatch: "YES" });
       }
       if (!anyViewMatch) {
-        metadataResults.push({ hl, text: "(NO STRINGS MATCHED)", viewMatch: "FAIL" });
+        metadataResults.push({ hl, text: unmatchedMeta.length ? unmatchedMeta.join(' | ') : "(no candidates)", viewMatch: "FAIL" });
       }
 
       // --- Upcoming/scheduled badge text (skip video durations) ---
@@ -379,7 +452,8 @@ function waitForEnter(msg) {
         }
       }
 
-      console.log(`${hl}: ${titles.length} section(s), ${ageStrings.length} age(s), ${viewStrings.length} metadata(s), ${badgeTexts.length} badge(s)`);
+      const playableCount = playableInfo.length;
+      console.log(`${hl}: ${playableCount} playable(s), ${titles.length} section(s), ${ageStrings.length} age(s), ${viewStrings.length} metadata(s), ${badgeTexts.length} badge(s)`);
     } catch (e) {
       sectionResults.push({ hl, title: "", match: "ERROR: " + e.message });
       console.log(`${hl}: ERROR - ${e.message}`);
@@ -412,9 +486,13 @@ function waitForEnter(msg) {
   console.log("\n=== UPCOMING/SCHEDULED BADGE TEXT ===\n");
   console.table(upcomingResults);
 
+  console.log("\n=== PLAYABLES DETECTION ===\n");
+  console.table(playableResults);
+
   const sectionFails = sectionResults.filter((r) => r.match === "UNMATCHED");
   const timeFails = timeResults.filter((r) => r.parsed === "FAILED");
   const metadataFails = metadataResults.filter((r) => r.viewMatch === "FAIL");
+  const playableFails = playableResults.filter((r) => r.count > 0 && r.allInRenderer === "NO");
 
   if (sectionFails.length) {
     console.warn("\nSECTION FAILURES:");
@@ -431,7 +509,12 @@ function waitForEnter(msg) {
     metadataFails.forEach((f) => console.warn(`  ${f.hl}`));
   }
 
-  if (sectionFails.length || timeFails.length || metadataFails.length) {
+  if (playableFails.length) {
+    console.warn("\nPLAYABLE DETECTION FAILURES (found but not in expected renderer):");
+    playableFails.forEach((f) => console.warn(`  ${f.hl}: ${f.count} playable(s)`));
+  }
+
+  if (sectionFails.length || timeFails.length || metadataFails.length || playableFails.length) {
     process.exit(1);
   } else {
     console.log("\nAll matched!");

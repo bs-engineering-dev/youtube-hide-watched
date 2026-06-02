@@ -1,19 +1,72 @@
 {
-  "extName": { "message": "Masquer les vidéos YouTube regardées", "description": "Extension name shown in browser and store" },
-  "extDescription": { "message": "Masque les vidéos déjà regardées de votre page d'abonnements YouTube, n'affichant que le contenu non visionné.", "description": "Extension description shown in browser and store" },
-  "hideWatchedVideos": { "message": "Masquer les vidéos regardées", "description": "Toggle label in popup" },
-  "markAllWatched": { "message": "Tout marquer comme regardé", "description": "Button to mark all visible videos as watched" },
-  "watchThreshold": { "message": "Seuil de visionnage :", "description": "Label for threshold slider" },
-  "thresholdHint": { "message": "Masquer les vidéos regardées au-delà de ce pourcentage", "description": "Hint text below threshold slider" },
-  "subsMaxAge": { "message": "Ancienneté max des abonnements :", "description": "Label for max age slider" },
-  "maxAgeHint": { "message": "Masquer les vidéos plus anciennes que cette durée dans les abonnements (0 = désactivé)", "description": "Hint text below max age slider" },
-  "maxAgeOff": { "message": "Désactivé", "description": "Displayed when max age is disabled" },
-  "maxAgeDays": { "message": "$COUNT$ $UNIT$", "description": "Max age display like '7 days' or '1 day'", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },
-  "dayUnit": { "message": "jour", "description": "Singular day unit" },
-  "daysUnit": { "message": "jours", "description": "Plural days unit" },
-  "hideMostRelevant": { "message": "Masquer la section « Les plus pertinentes »", "description": "Checkbox label" },
-  "hideLatest": { "message": "Masquer la section « Récentes »", "description": "Checkbox label" },
-  "hideShorts": { "message": "Masquer la section « Shorts »", "description": "Checkbox label" },
+  "extName": {
+    "message": "Masquer les vidéos YouTube regardées",
+    "description": "Extension name shown in browser and store"
+  },
+  "extDescription": {
+    "message": "Masque les vidéos déjà regardées de votre page d'abonnements YouTube, n'affichant que le contenu non visionné.",
+    "description": "Extension description shown in browser and store"
+  },
+  "hideWatchedVideos": {
+    "message": "Masquer les vidéos regardées",
+    "description": "Toggle label in popup"
+  },
+  "markAllWatched": {
+    "message": "Tout marquer comme regardé",
+    "description": "Button to mark all visible videos as watched"
+  },
+  "watchThreshold": {
+    "message": "Seuil de visionnage :",
+    "description": "Label for threshold slider"
+  },
+  "thresholdHint": {
+    "message": "Masquer les vidéos regardées au-delà de ce pourcentage",
+    "description": "Hint text below threshold slider"
+  },
+  "subsMaxAge": {
+    "message": "Ancienneté max des abonnements :",
+    "description": "Label for max age slider"
+  },
+  "maxAgeHint": {
+    "message": "Masquer les vidéos plus anciennes que cette durée dans les abonnements (0 = désactivé)",
+    "description": "Hint text below max age slider"
+  },
+  "maxAgeOff": {
+    "message": "Désactivé",
+    "description": "Displayed when max age is disabled"
+  },
+  "maxAgeDays": {
+    "message": "$COUNT$ $UNIT$",
+    "description": "Max age display like '7 days' or '1 day'",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "dayUnit": {
+    "message": "jour",
+    "description": "Singular day unit"
+  },
+  "daysUnit": {
+    "message": "jours",
+    "description": "Plural days unit"
+  },
+  "hideMostRelevant": {
+    "message": "Masquer la section « Les plus pertinentes »",
+    "description": "Checkbox label"
+  },
+  "hideLatest": {
+    "message": "Masquer la section « Récentes »",
+    "description": "Checkbox label"
+  },
+  "hideShorts": {
+    "message": "Masquer la section « Shorts »",
+    "description": "Checkbox label"
+  },
   "hideScheduled": {
     "message": "Masquer les vidéos planifiées",
     "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
@@ -22,20 +75,105 @@
     "message": "Masquer les premières et diffusions planifiées",
     "description": "Hint for the hide scheduled toggle"
   },
-  "iconOnThumbnail": { "message": "Afficher l'icône sur la miniature", "description": "Checkbox label" },
-  "iconOnThumbnailHint": { "message": "Si désactivé, l'icône apparaît à côté des métadonnées de la vidéo", "description": "Hint for icon placement option" },
-  "videosCached": { "message": "$COUNT$ $UNIT$ en cache", "description": "Cache count display", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },
-  "videoUnit": { "message": "vidéo", "description": "Singular video unit" },
-  "videosUnit": { "message": "vidéos", "description": "Plural videos unit" },
-  "clearCache": { "message": "Vider le cache", "description": "Button to clear the cache" },
-  "cacheWarning": { "message": "Le cache approche de la limite de stockage. Les entrées les plus anciennes seront supprimées automatiquement.", "description": "Warning shown when cache is almost full" },
-  "cacheCleared": { "message": "Cache vidé", "description": "Status message after clearing cache" },
-  "saved": { "message": "Enregistré", "description": "Status message after saving a setting" },
-  "markedCount": { "message": "$COUNT$ marquée(s)", "description": "Shown after marking all videos", "placeholders": { "count": { "content": "$1" } } },
-  "noVideosFound": { "message": "Aucune vidéo trouvée", "description": "Shown when mark all finds no videos" },
-  "hiddenCount": { "message": "$COUNT$ $UNIT$ regardée(s) masquée(s)", "description": "Hidden video count in popup", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },
-  "markAsWatched": { "message": "Marquer comme regardée", "description": "Tooltip for the eye icon button" },
-  "videoHidden": { "message": "Vidéo masquée", "description": "Text shown in the undo card" },
-  "undo": { "message": "Annuler", "description": "Undo button text" },
-  "ageCutoff": { "message": "Affichage limité aux vidéos des $COUNT$ derniers $UNIT$", "description": "Banner shown when age cutoff is active", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } }
+  "iconOnThumbnail": {
+    "message": "Afficher l'icône sur la miniature",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnailHint": {
+    "message": "Si désactivé, l'icône apparaît à côté des métadonnées de la vidéo",
+    "description": "Hint for icon placement option"
+  },
+  "videosCached": {
+    "message": "$COUNT$ $UNIT$ en cache",
+    "description": "Cache count display",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "videoUnit": {
+    "message": "vidéo",
+    "description": "Singular video unit"
+  },
+  "videosUnit": {
+    "message": "vidéos",
+    "description": "Plural videos unit"
+  },
+  "clearCache": {
+    "message": "Vider le cache",
+    "description": "Button to clear the cache"
+  },
+  "cacheWarning": {
+    "message": "Le cache approche de la limite de stockage. Les entrées les plus anciennes seront supprimées automatiquement.",
+    "description": "Warning shown when cache is almost full"
+  },
+  "cacheCleared": {
+    "message": "Cache vidé",
+    "description": "Status message after clearing cache"
+  },
+  "saved": {
+    "message": "Enregistré",
+    "description": "Status message after saving a setting"
+  },
+  "markedCount": {
+    "message": "$COUNT$ marquée(s)",
+    "description": "Shown after marking all videos",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "noVideosFound": {
+    "message": "Aucune vidéo trouvée",
+    "description": "Shown when mark all finds no videos"
+  },
+  "hiddenCount": {
+    "message": "$COUNT$ $UNIT$ regardée(s) masquée(s)",
+    "description": "Hidden video count in popup",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "markAsWatched": {
+    "message": "Marquer comme regardée",
+    "description": "Tooltip for the eye icon button"
+  },
+  "videoHidden": {
+    "message": "Vidéo masquée",
+    "description": "Text shown in the undo card"
+  },
+  "undo": {
+    "message": "Annuler",
+    "description": "Undo button text"
+  },
+  "ageCutoff": {
+    "message": "Affichage limité aux vidéos des $COUNT$ derniers $UNIT$",
+    "description": "Banner shown when age cutoff is active",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "hidePlayables": {
+    "message": "Masquer les Playables",
+    "description": "Checkbox label for hiding YouTube mini-games"
+  },
+  "hidePlayablesHint": {
+    "message": "Masquer les mini-jeux YouTube du flux",
+    "description": "Hint for the hide playables toggle"
+  }
 }

@@ -1,19 +1,72 @@
 {
-  "extName": { "message": "隐藏已看过的 YouTube 视频", "description": "Extension name shown in browser and store" },
-  "extDescription": { "message": "在 YouTube 订阅页面中隐藏已看过的视频，只显示未观看的内容。", "description": "Extension description shown in browser and store" },
-  "hideWatchedVideos": { "message": "隐藏已看过的视频", "description": "Toggle label in popup" },
-  "markAllWatched": { "message": "全部标记为已看", "description": "Button to mark all visible videos as watched" },
-  "watchThreshold": { "message": "观看阈值：", "description": "Label for threshold slider" },
-  "thresholdHint": { "message": "隐藏观看进度超过此百分比的视频", "description": "Hint text below threshold slider" },
-  "subsMaxAge": { "message": "订阅最大时效：", "description": "Label for max age slider" },
-  "maxAgeHint": { "message": "在订阅页面隐藏超过此时间的视频（0 = 关闭）", "description": "Hint text below max age slider" },
-  "maxAgeOff": { "message": "关闭", "description": "Displayed when max age is disabled" },
-  "maxAgeDays": { "message": "$COUNT$ $UNIT$", "description": "Max age display like '7 days' or '1 day'", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },
-  "dayUnit": { "message": "天", "description": "Singular day unit" },
-  "daysUnit": { "message": "天", "description": "Plural days unit" },
-  "hideMostRelevant": { "message": "隐藏「最相关」板块", "description": "Checkbox label" },
-  "hideLatest": { "message": "隐藏「最新」板块", "description": "Checkbox label" },
-  "hideShorts": { "message": "隐藏「Shorts」板块", "description": "Checkbox label" },
+  "extName": {
+    "message": "隐藏已看过的 YouTube 视频",
+    "description": "Extension name shown in browser and store"
+  },
+  "extDescription": {
+    "message": "在 YouTube 订阅页面中隐藏已看过的视频，只显示未观看的内容。",
+    "description": "Extension description shown in browser and store"
+  },
+  "hideWatchedVideos": {
+    "message": "隐藏已看过的视频",
+    "description": "Toggle label in popup"
+  },
+  "markAllWatched": {
+    "message": "全部标记为已看",
+    "description": "Button to mark all visible videos as watched"
+  },
+  "watchThreshold": {
+    "message": "观看阈值：",
+    "description": "Label for threshold slider"
+  },
+  "thresholdHint": {
+    "message": "隐藏观看进度超过此百分比的视频",
+    "description": "Hint text below threshold slider"
+  },
+  "subsMaxAge": {
+    "message": "订阅最大时效：",
+    "description": "Label for max age slider"
+  },
+  "maxAgeHint": {
+    "message": "在订阅页面隐藏超过此时间的视频（0 = 关闭）",
+    "description": "Hint text below max age slider"
+  },
+  "maxAgeOff": {
+    "message": "关闭",
+    "description": "Displayed when max age is disabled"
+  },
+  "maxAgeDays": {
+    "message": "$COUNT$ $UNIT$",
+    "description": "Max age display like '7 days' or '1 day'",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "dayUnit": {
+    "message": "天",
+    "description": "Singular day unit"
+  },
+  "daysUnit": {
+    "message": "天",
+    "description": "Plural days unit"
+  },
+  "hideMostRelevant": {
+    "message": "隐藏「最相关」板块",
+    "description": "Checkbox label"
+  },
+  "hideLatest": {
+    "message": "隐藏「最新」板块",
+    "description": "Checkbox label"
+  },
+  "hideShorts": {
+    "message": "隐藏「Shorts」板块",
+    "description": "Checkbox label"
+  },
   "hideScheduled": {
     "message": "隐藏已排期视频",
     "description": "Checkbox label for hiding upcoming premieres and scheduled streams"
@@ -22,20 +75,105 @@
     "message": "隐藏即将首播和已排期的直播",
     "description": "Hint for the hide scheduled toggle"
   },
-  "iconOnThumbnail": { "message": "在缩略图上显示隐藏图标", "description": "Checkbox label" },
-  "iconOnThumbnailHint": { "message": "关闭后，图标将显示在视频信息旁边", "description": "Hint for icon placement option" },
-  "videosCached": { "message": "已缓存 $COUNT$ $UNIT$", "description": "Cache count display", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },
-  "videoUnit": { "message": "个视频", "description": "Singular video unit" },
-  "videosUnit": { "message": "个视频", "description": "Plural videos unit" },
-  "clearCache": { "message": "清除缓存", "description": "Button to clear the cache" },
-  "cacheWarning": { "message": "缓存接近存储上限，最早的记录将被自动清除。", "description": "Warning shown when cache is almost full" },
-  "cacheCleared": { "message": "缓存已清除", "description": "Status message after clearing cache" },
-  "saved": { "message": "已保存", "description": "Status message after saving a setting" },
-  "markedCount": { "message": "已标记 $COUNT$ 个", "description": "Shown after marking all videos", "placeholders": { "count": { "content": "$1" } } },
-  "noVideosFound": { "message": "未找到视频", "description": "Shown when mark all finds no videos" },
-  "hiddenCount": { "message": "已隐藏 $COUNT$ $UNIT$", "description": "Hidden video count in popup", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } },
-  "markAsWatched": { "message": "标记为已看", "description": "Tooltip for the eye icon button" },
-  "videoHidden": { "message": "视频已隐藏", "description": "Text shown in the undo card" },
-  "undo": { "message": "撤销", "description": "Undo button text" },
-  "ageCutoff": { "message": "仅显示最近 $COUNT$ $UNIT$内的视频", "description": "Banner shown when age cutoff is active", "placeholders": { "count": { "content": "$1" }, "unit": { "content": "$2" } } }
+  "iconOnThumbnail": {
+    "message": "在缩略图上显示隐藏图标",
+    "description": "Checkbox label"
+  },
+  "iconOnThumbnailHint": {
+    "message": "关闭后，图标将显示在视频信息旁边",
+    "description": "Hint for icon placement option"
+  },
+  "videosCached": {
+    "message": "已缓存 $COUNT$ $UNIT$",
+    "description": "Cache count display",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "videoUnit": {
+    "message": "个视频",
+    "description": "Singular video unit"
+  },
+  "videosUnit": {
+    "message": "个视频",
+    "description": "Plural videos unit"
+  },
+  "clearCache": {
+    "message": "清除缓存",
+    "description": "Button to clear the cache"
+  },
+  "cacheWarning": {
+    "message": "缓存接近存储上限，最早的记录将被自动清除。",
+    "description": "Warning shown when cache is almost full"
+  },
+  "cacheCleared": {
+    "message": "缓存已清除",
+    "description": "Status message after clearing cache"
+  },
+  "saved": {
+    "message": "已保存",
+    "description": "Status message after saving a setting"
+  },
+  "markedCount": {
+    "message": "已标记 $COUNT$ 个",
+    "description": "Shown after marking all videos",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "noVideosFound": {
+    "message": "未找到视频",
+    "description": "Shown when mark all finds no videos"
+  },
+  "hiddenCount": {
+    "message": "已隐藏 $COUNT$ $UNIT$",
+    "description": "Hidden video count in popup",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "markAsWatched": {
+    "message": "标记为已看",
+    "description": "Tooltip for the eye icon button"
+  },
+  "videoHidden": {
+    "message": "视频已隐藏",
+    "description": "Text shown in the undo card"
+  },
+  "undo": {
+    "message": "撤销",
+    "description": "Undo button text"
+  },
+  "ageCutoff": {
+    "message": "仅显示最近 $COUNT$ $UNIT$内的视频",
+    "description": "Banner shown when age cutoff is active",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
+    }
+  },
+  "hidePlayables": {
+    "message": "隐藏小游戏",
+    "description": "Checkbox label for hiding YouTube mini-games"
+  },
+  "hidePlayablesHint": {
+    "message": "从信息流中隐藏YouTube小游戏",
+    "description": "Hint for the hide playables toggle"
+  }
 }

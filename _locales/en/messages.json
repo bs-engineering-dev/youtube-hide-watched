@@ -71,6 +71,14 @@
     "message": "Hide upcoming premieres and scheduled streams",
     "description": "Hint for the hide scheduled toggle"
   },
+  "hidePlayables": {
+    "message": "Hide Playables",
+    "description": "Checkbox label for hiding YouTube mini-games"
+  },
+  "hidePlayablesHint": {
+    "message": "Hide YouTube mini-games from the feed",
+    "description": "Hint for the hide playables toggle"
+  },
   "iconOnThumbnail": {
     "message": "Show hide icon on thumbnail",
     "description": "Checkbox label"

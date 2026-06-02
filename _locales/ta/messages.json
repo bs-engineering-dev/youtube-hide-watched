@@ -39,8 +39,12 @@
     "message": "$COUNT$ $UNIT$",
     "description": "Max age display like '7 days' or '1 day'",
     "placeholders": {
-      "count": { "content": "$1" },
-      "unit": { "content": "$2" }
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
     }
   },
   "dayUnit": {
@@ -83,8 +87,12 @@
     "message": "$COUNT$ $UNIT$ தற்காலிகமாகச் சேமிக்கப்பட்டன",
     "description": "Cache count display",
     "placeholders": {
-      "count": { "content": "$1" },
-      "unit": { "content": "$2" }
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
     }
   },
   "videoUnit": {
@@ -115,7 +123,9 @@
     "message": "$COUNT$ குறிக்கப்பட்டன",
     "description": "Shown after marking all videos",
     "placeholders": {
-      "count": { "content": "$1" }
+      "count": {
+        "content": "$1"
+      }
     }
   },
   "noVideosFound": {
@@ -126,8 +136,12 @@
     "message": "$COUNT$ பார்த்த $UNIT$ மறைக்கப்பட்டன",
     "description": "Hidden video count in popup",
     "placeholders": {
-      "count": { "content": "$1" },
-      "unit": { "content": "$2" }
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
     }
   },
   "markAsWatched": {
@@ -146,8 +160,20 @@
     "message": "கடந்த $COUNT$ $UNIT$ வீடியோக்கள் மட்டுமே காட்டப்படுகின்றன",
     "description": "Banner shown when age cutoff is active",
     "placeholders": {
-      "count": { "content": "$1" },
-      "unit": { "content": "$2" }
+      "count": {
+        "content": "$1"
+      },
+      "unit": {
+        "content": "$2"
+      }
     }
+  },
+  "hidePlayables": {
+    "message": "விளையாட்டுகளை மறை",
+    "description": "Checkbox label for hiding YouTube mini-games"
+  },
+  "hidePlayablesHint": {
+    "message": "ஊட்டத்தில் இருந்து YouTube மினி-கேம்களை மறை",
+    "description": "Hint for the hide playables toggle"
   }
 }

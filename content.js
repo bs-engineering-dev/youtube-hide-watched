@@ -15,7 +15,7 @@
   const CACHE_TARGET_BYTES = 7_000_000;
   const CACHE_CHECK_COUNT = 200_000;
 
-  let config = { enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, iconOnThumbnail: false };
+  let config = { enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false };
   let cache = {};
   let observer = null;
   let debounceTimer = null;
@@ -57,7 +57,7 @@
     en: 'streamed',         es: 'emitido',              fr: 'diffusé',
     de: 'gestreamt',        id: 'disiarkan',            pt: 'transmitido',
     tr: 'canlı yayın',     sv: 'strömmade',
-    ja: 'ライブ配信',       ko: '실시간 스트리밍',      zh: '直播',
+    ja: 'ライブ配信',       ko: ['실시간 스트리밍', '스트리밍 시간'],      zh: '直播',
     ar: 'بث مباشر',         ru: 'трансляция',
     hi: 'लाइव स्ट्रीम',    bn: 'লাইভ স্ট্রিম',        mr: 'लाइव्ह स्ट्रीम',
     th: 'ถ่ายทอดสด',        ta: 'நேரலை',                te: 'ప్రత్యక్ష ప్రసారం',
@@ -84,25 +84,25 @@
     })},
     // minutes
     { days: 0, re: localeRE({
-      en: 'minute',   es: 'minuto',   fr: 'minute',   de: 'Minute',   id: 'menit',
-      pt: 'minuto',   tr: 'dakika',   sv: 'minut',    vi: 'phút',
+      en: 'minute',   es: 'minuto',   fr: ['minute', '\\bmin\\b'],   de: ['Minute', 'Min\\.'],   id: 'menit',
+      pt: ['minuto', 'min\\.'],   tr: ['dakika', 'dk\\.'],   sv: 'minut',    vi: 'phút',
       ja: '分',       ko: '분',
-      ar: 'دق',       ru: 'минут',
-      hi: 'मिनट',     bn: 'মিনিট',    mr: 'मिनिट',
-      th: 'นาที',     ta: 'நிமிட',    te: 'నిమిషా',
+      ar: 'دق',       ru: ['минут', 'мин\\.'],
+      hi: ['मिनट', 'मि॰'],     bn: 'মিনিট',    mr: ['मिनिट', 'मिनि\\.'],
+      th: 'นาที',     ta: ['நிமிட', 'நிமி\\.'],    te: ['నిమిషా', 'నిమి'],
     })},
     // hours
     { days: 0, re: localeRE({
-      en: 'hour',     es: 'hora',     fr: 'heure',    de: 'Stunde',   id: 'jam',
-      tr: 'saat',     sv: 'timm',     vi: 'giờ',
+      en: ['hour', '\\dh'],     es: ['hora', '\\sh\\b'],     fr: ['heure', '\\sh\\b'],    de: ['Stunde', 'Std\\.'],   id: 'jam', pt: ['hora', '\\sh\\b'],
+      tr: ['saat', 'sa\\.'],     sv: ['timm', '\\btim\\b'],     vi: 'giờ',
       ja: '時間',     ko: '시간',     zh: '小时',
-      ar: 'ساع',      ru: 'час',
-      hi: 'घंट',      bn: 'ঘণ্টা',    mr: 'तास',
-      th: 'ชั่วโมง',  ta: 'மணி',      te: 'గంట',
+      ar: 'ساع',      ru: ['час', 'ч'],
+      hi: ['घंट', 'घं'],      bn: 'ঘণ্টা',    mr: 'तास',
+      th: 'ชั่วโมง',  ta: ['மணி', 'ம\\.'],      te: ['గంట', 'గం'],
     })},
     // days
     { days: 1, re: localeRE({
-      en: 'day',      es: 'día',      fr: 'jour',     de: 'Tag',      id: 'hari',
+      en: ['day', '\\dd'],      es: ['día', '\\bd\\b'],      fr: 'jour',     de: 'Tag',      id: 'hari',
       pt: 'dia',      tr: 'gün',      sv: 'dag',
       ja: '日',       ko: '일',
       ar: 'يوم',      ru: 'дн',
@@ -159,10 +159,10 @@
   async function init() {
     try {
       const [syncData, localData] = await Promise.all([
-        chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, iconOnThumbnail: false }),
+        chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }),
         chrome.storage.local.get({ cache: {} }),
       ]);
-      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, hideShorts: syncData.hideShorts, hideScheduled: syncData.hideScheduled, iconOnThumbnail: syncData.iconOnThumbnail };
+      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, hideShorts: syncData.hideShorts, hideScheduled: syncData.hideScheduled, hidePlayables: syncData.hidePlayables, iconOnThumbnail: syncData.iconOnThumbnail };
       cache = localData.cache;
       manageCacheSize();
     } catch (e) {
@@ -217,6 +217,7 @@
       if (changes.hideLatest) config.hideLatest = changes.hideLatest.newValue;
       if (changes.hideShorts) config.hideShorts = changes.hideShorts.newValue;
       if (changes.hideScheduled) config.hideScheduled = changes.hideScheduled.newValue;
+      if (changes.hidePlayables) config.hidePlayables = changes.hidePlayables.newValue;
       if (changes.iconOnThumbnail) {
         config.iconOnThumbnail = changes.iconOnThumbnail.newValue;
         document.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
@@ -447,6 +448,10 @@
     th: 'กำหนดเวลา',        ta: 'திட்டமிட',         te: 'షెడ్యూల్',
   });
 
+  function isPlayable(el) {
+    return !!el.querySelector('ytd-mini-game-card-view-model');
+  }
+
   function isScheduled(el) {
     const badges = el.querySelectorAll('.ytBadgeShapeText');
     for (const badge of badges) {
@@ -484,6 +489,17 @@
 
     if (el.dataset.hwAgeHidden) {
       delete el.dataset.hwAgeHidden;
+      el.classList.remove('hw-hidden');
+    }
+
+    if (config.hidePlayables && isPlayable(el)) {
+      el.classList.add('hw-hidden');
+      el.dataset.hwPlayableHidden = '1';
+      return;
+    }
+
+    if (el.dataset.hwPlayableHidden) {
+      delete el.dataset.hwPlayableHidden;
       el.classList.remove('hw-hidden');
     }
 
