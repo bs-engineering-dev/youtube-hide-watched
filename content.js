@@ -22,6 +22,8 @@
   let driftInterval = null;
   let scrollCutoff = false;
   let selfCacheWrite = false;
+  let initialScanDone = false;
+  const dismissed = new Map();
 
   // ── Locale patterns ──────────────────────────────────────────
   // Maps language codes to YouTube UI text (case-insensitive substring match).
@@ -192,6 +194,8 @@
 
   function onNavigate() {
     scrollCutoff = false;
+    initialScanDone = false;
+    dismissed.clear();
     removeAgeCutoffBanner();
     if (isTargetPage()) {
       attachObserver();
@@ -274,10 +278,40 @@
     return false;
   }
 
+  function checkInlinePreview() {
+    if (!config.enabled || !initialScanDone) return;
+    const video = document.querySelector('#inline-preview-player video');
+    if (!video || !video.duration || isNaN(video.duration) || !isFinite(video.duration) || video.paused) return;
+    const pct = (video.currentTime / video.duration) * 100;
+    if (pct <= 0 || (config.threshold > 1 && pct < config.threshold)) return;
+
+    const link = document.querySelector('#media-container-link');
+    const href = link?.getAttribute('href');
+    const m = href?.match(/[?&]v=([^&#]+)/) || href?.match(/\/shorts\/([^?&#]+)/);
+    const id = m?.[1];
+    if (!id || typeof cache[id] === 'number') return;
+    if (dismissed.has(id) && pct <= dismissed.get(id) + 5) return;
+
+    const renderer = document.querySelector(`a[href*="${id}"]`)?.closest(VIDEO_SELECTOR);
+    if (!renderer || renderer.classList.contains('hw-hidden') || renderer.classList.contains('hw-manual-hide')) return;
+
+    dismissed.delete(id);
+    cache[id] = { t: Date.now(), p: pct };
+    selfCacheWrite = true;
+    chrome.storage.local.set({ cache });
+    showUndoCard(renderer, id, () => {
+      delete cache[id];
+      selfCacheWrite = true;
+      chrome.storage.local.set({ cache });
+      dismissed.set(id, pct);
+    });
+  }
+
   function startDriftCheck() {
     stopDriftCheck();
     driftInterval = setInterval(() => {
       if (!isContextValid()) { stopDriftCheck(); detachObserver(); cleanupDOM(); return; }
+      checkInlinePreview();
       if (isDrifted()) scheduleScan();
     }, 2000);
   }
@@ -303,6 +337,7 @@
     }
     hideMostRelevantSection();
     document.querySelectorAll(VIDEO_SELECTOR).forEach(processVideo);
+    initialScanDone = true;
     if (config.enabled) expandShortsIfNeeded();
     pruneEmptySections();
     if (config.maxAgeDays && isSubscriptionsPage()) checkAgeCutoff();
@@ -466,13 +501,17 @@
   }
 
   function isWatched(el, id) {
-    if (id && cache[id]) return true;
+    if (id && cache[id]) {
+      const entry = cache[id];
+      if (typeof entry === 'number') return true;
+      if (entry.p >= config.threshold || config.threshold <= 1) return true;
+    }
     if (el.querySelector('yt-thumbnail-overlay-full-view-model')) return true;
 
     const progress = getProgressWidth(el);
-    if (progress < 0) return false; // no progress bar at all
+    if (progress < 0) return false;
 
-    if (config.threshold <= 1) return true; // any progress = watched
+    if (config.threshold <= 1) return true;
     return progress >= config.threshold;
   }
 
@@ -515,7 +554,32 @@
       el.classList.remove('hw-hidden');
     }
 
+    if (id && dismissed.has(id)) {
+      el.classList.remove('hw-hidden');
+      ensureMarkButton(el, id);
+      return;
+    }
+
     if (isWatched(el, id)) {
+      if (id && typeof cache[id] !== 'number') {
+        const p = getProgressWidth(el);
+        const detected = p >= 0 ? p : (el.querySelector('yt-thumbnail-overlay-full-view-model') ? 100 : -1);
+        const prevP = cache[id]?.p ?? -1;
+        if (detected >= 0 && detected > prevP) {
+          cache[id] = { t: Date.now(), p: detected };
+          selfCacheWrite = true;
+          chrome.storage.local.set({ cache });
+          if (config.enabled && initialScanDone && prevP < 0) {
+            showUndoCard(el, id, () => {
+              delete cache[id];
+              selfCacheWrite = true;
+              chrome.storage.local.set({ cache });
+              dismissed.set(id, detected);
+            });
+            return;
+          }
+        }
+      }
       if (config.enabled) {
         el.classList.add('hw-hidden');
       } else {
@@ -608,12 +672,7 @@
     }
   }
 
-  function markWatched(el, id) {
-    cache[id] = Date.now();
-    selfCacheWrite = true;
-    chrome.storage.local.set({ cache });
-    manageCacheSize();
-
+  function showUndoCard(el, id, onUndo) {
     el.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
     el.classList.add('hw-manual-hide');
 
@@ -633,9 +692,7 @@
     undoBtn.addEventListener('click', () => {
       if (undone) return;
       undone = true;
-      delete cache[id];
-      selfCacheWrite = true;
-    chrome.storage.local.set({ cache });
+      onUndo();
       el.classList.remove('hw-manual-hide');
       card.remove();
       ensureMarkButton(el, id);
@@ -652,6 +709,18 @@
     }, UNDO_MS);
 
     pruneEmptySections();
+  }
+
+  function markWatched(el, id) {
+    cache[id] = Date.now();
+    selfCacheWrite = true;
+    chrome.storage.local.set({ cache });
+    manageCacheSize();
+    showUndoCard(el, id, () => {
+      delete cache[id];
+      selfCacheWrite = true;
+      chrome.storage.local.set({ cache });
+    });
   }
 
   function pruneEmptySections() {
@@ -732,7 +801,8 @@
     if (Object.keys(cache).length < CACHE_CHECK_COUNT) return;
     const size = JSON.stringify(cache).length;
     if (size <= CACHE_EVICT_BYTES) return;
-    const entries = Object.entries(cache).sort((a, b) => a[1] - b[1]);
+    const ts = v => typeof v === 'number' ? v : v.t;
+    const entries = Object.entries(cache).sort((a, b) => ts(a[1]) - ts(b[1]));
     const bytesPerEntry = size / entries.length;
     const entriesToRemove = Math.ceil((size - CACHE_TARGET_BYTES) / bytesPerEntry);
     for (let i = 0; i < entriesToRemove && i < entries.length; i++) {
