@@ -15,7 +15,7 @@
   const CACHE_TARGET_BYTES = 7_000_000;
   const CACHE_CHECK_COUNT = 200_000;
 
-  let config = { enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false };
+  let config = { enabled: true, threshold: 15, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false };
   let cache = {};
   let observer = null;
   let debounceTimer = null;
@@ -161,7 +161,7 @@
   async function init() {
     try {
       const [syncData, localData] = await Promise.all([
-        chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }),
+        chrome.storage.sync.get({ enabled: true, threshold: 15, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }),
         chrome.storage.local.get({ cache: {} }),
       ]);
       config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, hideShorts: syncData.hideShorts, hideScheduled: syncData.hideScheduled, hidePlayables: syncData.hidePlayables, iconOnThumbnail: syncData.iconOnThumbnail };
@@ -232,7 +232,19 @@
       if (selfCacheWrite) {
         selfCacheWrite = false;
       } else {
-        cache = changes.cache.newValue || {};
+        const incoming = changes.cache.newValue || {};
+        let preserved = false;
+        for (const id in cache) {
+          if (typeof cache[id] === 'number' && typeof incoming[id] !== 'number') {
+            incoming[id] = cache[id];
+            preserved = true;
+          }
+        }
+        cache = incoming;
+        if (preserved) {
+          selfCacheWrite = true;
+          chrome.storage.local.set({ cache });
+        }
         if (isTargetPage()) scheduleScan();
       }
     }
@@ -295,6 +307,9 @@
     const renderer = document.querySelector(`a[href*="${id}"]`)?.closest(VIDEO_SELECTOR);
     if (!renderer || renderer.classList.contains('hw-hidden') || renderer.classList.contains('hw-manual-hide')) return;
 
+    const badge = renderer.querySelector('.ytBadgeShapeText');
+    if (badge && !/^\d[\d:.]*$/.test(badge.textContent.trim())) return;
+
     dismissed.delete(id);
     cache[id] = { t: Date.now(), p: pct };
     selfCacheWrite = true;
@@ -312,7 +327,10 @@
     driftInterval = setInterval(() => {
       if (!isContextValid()) { stopDriftCheck(); detachObserver(); cleanupDOM(); return; }
       checkInlinePreview();
-      if (isDrifted()) scheduleScan();
+      if (isDrifted()) {
+        if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+        scan();
+      }
     }, 2000);
   }
 
@@ -333,10 +351,10 @@
     if (!isTargetPage()) return;
     if (scrollCutoff) {
       removeContinuation();
-      return;
     }
+    const items = document.querySelectorAll(VIDEO_SELECTOR);
     hideMostRelevantSection();
-    document.querySelectorAll(VIDEO_SELECTOR).forEach(processVideo);
+    items.forEach(processVideo);
     initialScanDone = true;
     if (config.enabled) expandShortsIfNeeded();
     pruneEmptySections();
@@ -569,15 +587,6 @@
           cache[id] = { t: Date.now(), p: detected };
           selfCacheWrite = true;
           chrome.storage.local.set({ cache });
-          if (config.enabled && initialScanDone && prevP < 0) {
-            showUndoCard(el, id, () => {
-              delete cache[id];
-              selfCacheWrite = true;
-              chrome.storage.local.set({ cache });
-              dismissed.set(id, detected);
-            });
-            return;
-          }
         }
       }
       if (config.enabled) {
@@ -655,6 +664,13 @@
         btn.className = 'hw-mark-btn-short';
         btn.appendChild(createEyeIcon());
         metadataLine.appendChild(btn);
+        if (metadataLine.scrollWidth > metadataLine.clientWidth + 4) {
+          const parent = metadataLine.parentElement;
+          if (parent) {
+            btn.remove();
+            parent.insertBefore(btn, metadataLine.nextSibling);
+          }
+        }
         return;
       }
     }
@@ -720,6 +736,7 @@
       delete cache[id];
       selfCacheWrite = true;
       chrome.storage.local.set({ cache });
+      dismissed.set(id, 0);
     });
   }
 

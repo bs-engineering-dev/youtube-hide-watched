@@ -49,7 +49,7 @@ function formatMaxAge(val) {
   }
 })();
 
-chrome.storage.sync.get({ enabled: true, threshold: 5, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }, (data) => {
+chrome.storage.sync.get({ enabled: true, threshold: 15, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }, (data) => {
   toggle.checked = data.enabled;
   threshold.value = data.threshold;
   display.textContent = data.threshold + '%';
