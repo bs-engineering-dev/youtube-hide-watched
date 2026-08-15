@@ -26,7 +26,7 @@ The extension detects YouTube's built-in progress bars on video thumbnails. If a
 - "Mark All Watched" button to clear your entire feed at once
 - Mark individual videos as watched with the eye icon on any thumbnail
 - Adjustable watch threshold — set the minimum percentage before a video is hidden
-- Subscriptions max age — hide videos older than a set number of days and stop loading more once everything is past the cutoff
+- Subscriptions max age — hide videos older than a set number of days and stop loading more once everything is past the cutoff (does not apply to Shorts)
 - Optionally hide the "Most relevant" section on Subscriptions
 - Hide scheduled videos — upcoming premieres and scheduled streams can be hidden
 - Undo support when you accidentally mark a video
@@ -50,6 +50,8 @@ Works on desktop Chromium-based browsers: Chrome, Edge, Brave, Helium, Opera, an
 **A note about Shorts**
 
 YouTube Shorts don't consistently show progress bars on their thumbnails, so auto-detection of watched Shorts is limited. You can still mark Shorts as watched manually using the eye icon or the "Mark All Watched" button. On the Subscriptions Shorts tab, only manual marking is available — Shorts there have no timestamp or watch progress metadata for the extension to read.
+
+For the same reason, the Subscriptions max age setting does not apply to Shorts. YouTube shows a view count on Shorts but never an upload age, so the extension has no date to compare against and Shorts stay visible regardless of how old they are.
 
 **Support & feedback**
 

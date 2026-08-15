@@ -59,10 +59,6 @@
     "message": "\"सर्वात संबंधित\" विभाग लपवा",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "\"नवीनतम\" विभाग लपवा",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "\"Shorts\" विभाग लपवा",
     "description": "Checkbox label"

@@ -55,10 +55,6 @@
     "message": "Hide \"Most relevant\" section",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "Hide \"Latest\" section",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "Hide \"Shorts\" section",
     "description": "Checkbox label"

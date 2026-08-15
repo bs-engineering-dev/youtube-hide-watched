@@ -59,10 +59,6 @@
     "message": "Ocultar la sección «Más relevantes»",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "Ocultar la sección «Más recientes»",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "Ocultar la sección «Shorts»",
     "description": "Checkbox label"

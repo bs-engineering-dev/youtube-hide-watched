@@ -59,10 +59,6 @@
     "message": "Скрыть раздел «Самое актуальное»",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "Скрыть раздел «Последние»",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "Скрыть раздел «Shorts»",
     "description": "Checkbox label"

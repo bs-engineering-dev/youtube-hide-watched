@@ -8,14 +8,19 @@
     'ytd-reel-item-renderer',
   ].join(', ');
 
-  const SECTION_SELECTOR = 'ytd-rich-section-renderer';
+  // Both forms appear on real feeds; matching only the first missed shelves
+  // entirely, which left pruneEmptySections() unable to collapse a shelf whose
+  // videos were all hidden. ytd-item-section-renderer is deliberately excluded:
+  // it is the generic feed wrapper, has no title, and pruning it would hide the
+  // whole page.
+  const SECTION_SELECTOR = 'ytd-rich-section-renderer, ytd-shelf-renderer';
   const DEBOUNCE_MS = 300;
   const UNDO_MS = 60000;
   const CACHE_EVICT_BYTES = 9_500_000;
   const CACHE_TARGET_BYTES = 7_000_000;
   const CACHE_CHECK_COUNT = 200_000;
 
-  let config = { enabled: true, threshold: 15, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false };
+  let config = { enabled: true, threshold: 15, maxAgeDays: 0, hideMostRelevant: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false };
   let cache = {};
   let observer = null;
   let debounceTimer = null;
@@ -42,16 +47,6 @@
     hi: 'काम के वीडियो',   bn: 'প্রাসঙ্গিক',          mr: 'सर्वात सुसंबद्ध',
     th: 'เกี่ยวข้องที่สุด', ta: 'மிகவும் தொடர்புடையவை', te: 'మరింత సందర్భోచితమైనవి',
   });
-
-  const LATEST_RE = localeRE({
-    en: 'latest',           es: 'más recientes',        fr: 'les plus récentes',
-    de: 'neueste',          id: 'terbaru',              pt: 'mais recentes',
-    tr: 'Son yüklenenler',  sv: 'senaste',              vi: 'Mới nhất',
-    ja: '新しい順',         ko: '최신순',               zh: '最新',
-    ar: 'الأحدث',           ru: 'Новые',
-    hi: 'नए',               bn: 'লেটেস্ট',             mr: 'अलीकडील',
-    th: 'ล่าสุด',           ta: 'சமீபத்தியவை',         te: 'తాజా',
-  }, s => `^(${s})$`);
 
   const SHORTS_RE = localeRE({ en: 'shorts', ja: 'ショート' });
 
@@ -161,10 +156,10 @@
   async function init() {
     try {
       const [syncData, localData] = await Promise.all([
-        chrome.storage.sync.get({ enabled: true, threshold: 15, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }),
+        chrome.storage.sync.get({ enabled: true, threshold: 15, maxAgeDays: 0, hideMostRelevant: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }),
         chrome.storage.local.get({ cache: {} }),
       ]);
-      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideLatest: syncData.hideLatest, hideShorts: syncData.hideShorts, hideScheduled: syncData.hideScheduled, hidePlayables: syncData.hidePlayables, iconOnThumbnail: syncData.iconOnThumbnail };
+      config = { enabled: syncData.enabled, threshold: syncData.threshold, maxAgeDays: syncData.maxAgeDays, hideMostRelevant: syncData.hideMostRelevant, hideShorts: syncData.hideShorts, hideScheduled: syncData.hideScheduled, hidePlayables: syncData.hidePlayables, iconOnThumbnail: syncData.iconOnThumbnail };
       cache = localData.cache;
       manageCacheSize();
     } catch (e) {
@@ -182,7 +177,7 @@
   function isTargetPage() {
     const path = location.pathname;
     if (path === '/' || path === '') return true;
-    if (path === '/feed/subscriptions' || path === '/feed/subscriptions/shorts') return true;
+    if (/^\/feed\/subscriptions(\/shorts)?\/?$/.test(path)) return true;
     if (/^\/@[^/]+(\/videos|\/streams|\/shorts)?\/?$/.test(path)) return true;
     if (/^\/(channel|c|user)\/[^/]+(\/videos|\/streams|\/shorts)?\/?$/.test(path)) return true;
     return false;
@@ -210,7 +205,14 @@
 
   function onStorageChange(changes, area) {
     if (area === 'sync') {
-      if (changes.enabled) config.enabled = changes.enabled.newValue;
+      if (changes.enabled) {
+        config.enabled = changes.enabled.newValue;
+        // Drop the age cutoff too, or infinite scroll stays severed while off.
+        if (!config.enabled) {
+          scrollCutoff = false;
+          removeAgeCutoffBanner();
+        }
+      }
       if (changes.threshold) config.threshold = changes.threshold.newValue;
       if (changes.maxAgeDays) {
         config.maxAgeDays = changes.maxAgeDays.newValue;
@@ -218,7 +220,6 @@
         removeAgeCutoffBanner();
       }
       if (changes.hideMostRelevant) config.hideMostRelevant = changes.hideMostRelevant.newValue;
-      if (changes.hideLatest) config.hideLatest = changes.hideLatest.newValue;
       if (changes.hideShorts) config.hideShorts = changes.hideShorts.newValue;
       if (changes.hideScheduled) config.hideScheduled = changes.hideScheduled.newValue;
       if (changes.hidePlayables) config.hidePlayables = changes.hidePlayables.newValue;
@@ -285,7 +286,10 @@
 
       if (config.enabled && watched && !hidden) return true;
       if (!config.enabled && hidden) return true;
-      if (!watched && !hasBtn) return true;
+      // Only a visible, unwatched video is missing a button it could actually
+      // take. Items hidden for another reason (age, scheduled, playables) have
+      // theirs stripped on purpose, and some renderers can never mount one.
+      if (!watched && !hidden && !hasBtn && canMountMarkButton(el, id)) return true;
     }
     return false;
   }
@@ -392,9 +396,11 @@
       if (!title) return;
       const text = title.textContent.trim();
       let shouldHide = null;
-      if (MOST_RELEVANT_RE.test(text)) shouldHide = config.hideMostRelevant;
-      else if (LATEST_RE.test(text)) shouldHide = config.hideLatest;
-      else if (SHORTS_RE.test(text)) shouldHide = config.hideShorts;
+      // config.enabled gates these too — otherwise a force-hidden section stays
+      // hidden after the user turns the extension off, and cleanupDOM() skips
+      // anything carrying hwForceHidden.
+      if (MOST_RELEVANT_RE.test(text)) shouldHide = config.enabled && config.hideMostRelevant;
+      else if (SHORTS_RE.test(text)) shouldHide = config.enabled && config.hideShorts;
       if (shouldHide !== null) {
         if (shouldHide) {
           sec.classList.add('hw-section-hidden');
@@ -464,6 +470,14 @@
     return -1;
   }
 
+  // Returns -1 when no age can be determined.
+  //
+  // Shorts always return -1: their lockups carry only a view count, no upload
+  // age, in any locale. Verified against a live Subscriptions feed — every
+  // renderer that failed to parse was a Short (602/608 parsed; all 6 misses
+  // were Shorts). Consequence: isTooOld() is always false for a Short, so the
+  // Subscriptions max-age cutoff can never hide one. This is a DOM limitation,
+  // not a locale gap — do not try to fix it by adding TIME_UNITS patterns.
   function getVideoAgeDays(el) {
     const spans = el.querySelectorAll(
       '.ytContentMetadataViewModelMetadataText, #metadata-line span, .inline-metadata-item, ytd-video-meta-block span'
@@ -537,7 +551,10 @@
     if (el.classList.contains('hw-manual-hide')) return;
     const id = extractVideoId(el);
 
-    if (isTooOld(el)) {
+    // Every hide below is gated on config.enabled so that turning the extension
+    // off restores the page. The matching "if (el.dataset.hw*)" branch then
+    // unhides on the next scan.
+    if (config.enabled && isTooOld(el)) {
       el.classList.add('hw-hidden');
       el.dataset.hwAgeHidden = '1';
       el.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
@@ -549,7 +566,7 @@
       el.classList.remove('hw-hidden');
     }
 
-    if (config.hidePlayables && isPlayable(el)) {
+    if (config.enabled && config.hidePlayables && isPlayable(el)) {
       el.classList.add('hw-hidden');
       el.dataset.hwPlayableHidden = '1';
       return;
@@ -560,7 +577,7 @@
       el.classList.remove('hw-hidden');
     }
 
-    if (config.hideScheduled && isScheduled(el)) {
+    if (config.enabled && config.hideScheduled && isScheduled(el)) {
       el.classList.add('hw-hidden');
       el.dataset.hwScheduledHidden = '1';
       el.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short').forEach(b => b.remove());
@@ -601,12 +618,26 @@
     }
   }
 
+  // Renderers ensureMarkButton() could not attach to, keyed by the id we tried.
+  // Playables, posts and not-yet-hydrated cards have no id and no mount point;
+  // without this the drift checker would rescan every 2s forever. Storing the
+  // id means a recycled or hydrated renderer gets retried.
+  const unmountable = new WeakMap();
+
+  function canMountMarkButton(el, id) {
+    return !unmountable.has(el) || unmountable.get(el) !== id;
+  }
+
   function isShortRenderer(el) {
     return !!el.querySelector('ytm-shorts-lockup-view-model, ytm-shorts-lockup-view-model-v2');
   }
 
   function ensureMarkButton(el, id) {
-    if (!id || el.querySelector('.hw-mark-btn, .hw-mark-btn-short')) return;
+    if (el.querySelector('.hw-mark-btn, .hw-mark-btn-short')) return;
+    if (!id) {
+      unmountable.set(el, id);
+      return;
+    }
 
     const isShort = isShortRenderer(el);
 
@@ -636,6 +667,7 @@
         btn.className = 'hw-mark-btn-short';
         btn.appendChild(createEyeIcon());
         subhead.appendChild(btn);
+        unmountable.delete(el);
         return;
       }
     }
@@ -671,6 +703,7 @@
             parent.insertBefore(btn, metadataLine.nextSibling);
           }
         }
+        unmountable.delete(el);
         return;
       }
     }
@@ -680,11 +713,15 @@
         el.querySelector('yt-thumbnail-view-model') ||
         el.querySelector('ytd-thumbnail') ||
         el.querySelector('#thumbnail');
-      if (!container) return;
+      if (!container) {
+        unmountable.set(el, id);
+        return;
+      }
       container.style.position = 'relative';
       btn.className = 'hw-mark-btn';
       btn.appendChild(createEyeIcon());
       container.appendChild(btn);
+      unmountable.delete(el);
     }
   }
 
@@ -839,9 +876,14 @@
     document.querySelectorAll('[data-hw-scheduled-hidden]').forEach((e) =>
       delete e.dataset.hwScheduledHidden
     );
+    document.querySelectorAll('[data-hw-playable-hidden]').forEach((e) =>
+      delete e.dataset.hwPlayableHidden
+    );
+    // Force-hidden sections are cleared too. This runs when leaving a target
+    // page or losing the extension context, so nothing of ours should survive.
     document.querySelectorAll('.hw-section-hidden').forEach((e) => {
-      if (e.dataset.hwForceHidden) return;
       e.classList.remove('hw-section-hidden');
+      delete e.dataset.hwForceHidden;
     });
     document.querySelectorAll('.hw-mark-btn, .hw-mark-btn-short, .hw-undo-card').forEach((e) =>
       e.remove()

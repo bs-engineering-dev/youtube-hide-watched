@@ -59,10 +59,6 @@
     "message": "Ẩn mục “Phù hợp nhất”",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "Ẩn mục “Mới nhất”",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "Ẩn mục “Shorts”",
     "description": "Checkbox label"

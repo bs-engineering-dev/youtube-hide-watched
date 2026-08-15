@@ -59,10 +59,6 @@
     "message": "Sembunyikan bagian \"Paling relevan\"",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "Sembunyikan bagian \"Terbaru\"",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "Sembunyikan bagian \"Shorts\"",
     "description": "Checkbox label"

@@ -59,10 +59,6 @@
     "message": "「관련성 높은 순」 섹션 숨기기",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "「최신」 섹션 숨기기",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "「Shorts」 섹션 숨기기",
     "description": "Checkbox label"

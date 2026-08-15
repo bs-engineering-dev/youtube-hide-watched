@@ -59,10 +59,6 @@
     "message": "\"மிகவும் பொருத்தமான\" பகுதியை மறை",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "\"சமீபத்திய\" பகுதியை மறை",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "\"Shorts\" பகுதியை மறை",
     "description": "Checkbox label"

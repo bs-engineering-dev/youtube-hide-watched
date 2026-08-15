@@ -59,10 +59,6 @@
     "message": "إخفاء قسم \"الأكثر صلة\"",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "إخفاء قسم \"الأحدث\"",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "إخفاء قسم \"Shorts\"",
     "description": "Checkbox label"

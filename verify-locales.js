@@ -2,17 +2,22 @@
 //
 // Launches a real browser, signs into Google, then cycles through all 20
 // supported YouTube languages via the PREF cookie and checks that:
-//   1. Section title regexes (MOST_RELEVANT_RE, LATEST_RE, SHORTS_RE) match
+//   1. Section title regexes (MOST_RELEVANT_RE, SHORTS_RE) match
 //   2. Video age strings parse correctly through TIME_UNITS
 //   3. The VIEW_WATCHING_RE regex finds at least one metadata string per language
 //
 // Usage:
-//   node verify-locales.js
+//   node verify-locales.js           # reuses a saved login if present
+//   node verify-locales.js --fresh   # discards the profile, signs in again
 //
-// You will be prompted to sign into Google in the browser window that opens.
-// After sign-in the script runs unattended (~5 min) and prints a report.
+// On the first run you are prompted to sign into Google in the browser window
+// that opens; the script never sees or stores your password. After sign-in it
+// runs unattended (~5 min) and prints a report. The Chromium profile lives in
+// os.tmpdir() and is KEPT so later runs skip the login prompt entirely.
 // Requires: playwright (already a dev dependency).
-// Creates a temporary Chromium profile in os.tmpdir(); cleaned up on exit.
+//
+// This profile is separate from the one verify-subscriptions.js uses, because
+// this script cycles the YouTube PREF cookie through every supported language.
 //
 // ── Fixing locale misses ──────────────────────────────────────
 // When this script reports failures, fix them by APPENDING new
@@ -50,16 +55,6 @@ const MOST_RELEVANT_RE = localeRE({
   hi: 'काम के वीडियो',   bn: 'প্রাসঙ্গিক',          mr: 'सर्वात सुसंबद्ध',
   th: 'เกี่ยวข้องที่สุด', ta: 'மிகவும் தொடர்புடையவை', te: 'మరింత సందర్భోచితమైనవి',
 });
-
-const LATEST_RE = localeRE({
-  en: 'latest',           es: 'más recientes',        fr: 'les plus récentes',
-  de: 'neueste',          id: 'terbaru',              pt: 'mais recentes',
-  tr: 'Son yüklenenler',  sv: 'senaste',              vi: 'Mới nhất',
-  ja: '新しい順',         ko: '최신순',               zh: '最新',
-  ar: 'الأحدث',           ru: 'Новые',
-  hi: 'नए',               bn: 'লেটেস্ট',             mr: 'अलीकडील',
-  th: 'ล่าสุด',           ta: 'சமீபத்தியவை',         te: 'తాజా',
-}, s => `^(${s})$`);
 
 const SHORTS_RE = localeRE({ en: 'shorts', ja: 'ショート' });
 
@@ -131,7 +126,7 @@ const TIME_UNITS = [
   // years
   { days: 365, re: localeRE({
     en: 'year',     es: 'año',      fr: 'an ',      de: 'Jahr',     id: 'tahun',
-    pt: 'ano',      tr: 'yıl',      sv: 'år',
+    pt: 'ano',      tr: 'yıl',      sv: 'år',       vi: 'năm',
     ja: '年',       ko: '년',
     ar: 'سنة',      ru: 'год',
     hi: 'साल',      bn: 'বছর',      mr: 'वर्ष',
@@ -216,26 +211,32 @@ function waitForEnter(msg) {
 }
 
 (async () => {
-  // Step 1: Log in once and save the profile
-  fs.rmSync(PROFILE_DIR, { recursive: true, force: true });
+  const fresh = process.argv.includes("--fresh");
 
-  console.log("Launching browser for login...");
-  let browser = await chromium.launchPersistentContext(PROFILE_DIR, {
-    headless: false,
-    args: LAUNCH_ARGS,
-  });
+  // Step 1: Log in once, then reuse that profile on later runs.
+  if (fresh) fs.rmSync(PROFILE_DIR, { recursive: true, force: true });
 
-  let page = await browser.newPage();
-  await page.goto("https://accounts.google.com", {
-    waitUntil: "domcontentloaded",
-    timeout: 60000,
-  });
+  if (fs.existsSync(PROFILE_DIR)) {
+    console.log("Reusing saved login (" + PROFILE_DIR + "). Pass --fresh to sign in again.\n");
+  } else {
+    console.log("Launching browser for login...");
+    const loginBrowser = await chromium.launchPersistentContext(PROFILE_DIR, {
+      headless: false,
+      args: LAUNCH_ARGS,
+    });
 
-  console.log("\n=== Sign in to Google in the browser window. Take your time. ===\n");
-  await waitForEnter("Press Enter here AFTER you are fully signed in...\n");
+    const loginPage = await loginBrowser.newPage();
+    await loginPage.goto("https://accounts.google.com", {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
 
-  await browser.close();
-  console.log("Login saved. Starting locale tests...\n");
+    console.log("\n=== Sign in to Google in the browser window. Take your time. ===\n");
+    await waitForEnter("Press Enter here AFTER you are fully signed in...\n");
+
+    await loginBrowser.close();
+    console.log("Login saved. Starting locale tests...\n");
+  }
 
   // Step 2: Relaunch, cycle through languages via PREF cookie
   const sectionResults = [];
@@ -244,12 +245,12 @@ function waitForEnter(msg) {
   const upcomingResults = [];
   const playableResults = [];
 
-  browser = await chromium.launchPersistentContext(PROFILE_DIR, {
+  const browser = await chromium.launchPersistentContext(PROFILE_DIR, {
     headless: false,
     args: LAUNCH_ARGS,
   });
 
-  page = await browser.newPage();
+  let page = await browser.newPage();
 
   for (const hl of YT_LANGS) {
     try {
@@ -349,12 +350,11 @@ function waitForEnter(msg) {
 
       for (const t of titles) {
         const mr = MOST_RELEVANT_RE.test(t);
-        const lt = LATEST_RE.test(t);
         const sh = SHORTS_RE.test(t);
         sectionResults.push({
           hl,
           title: t,
-          match: mr ? "MOST_RELEVANT" : lt ? "LATEST" : sh ? "SHORTS" : "UNMATCHED",
+          match: mr ? "MOST_RELEVANT" : sh ? "SHORTS" : "UNMATCHED",
         });
       }
 
@@ -470,8 +470,9 @@ function waitForEnter(msg) {
 
   await browser.close();
 
-  // clean up
-  fs.rmSync(PROFILE_DIR, { recursive: true, force: true });
+  // The profile is deliberately kept so the next run skips the login prompt.
+  // The PREF cookie was reset to hl=en just above, so it is not left holding
+  // the last language cycled through. Use --fresh to discard it.
 
   // --- Report ---
   console.log("\n=== SECTION TITLES ===\n");

@@ -59,10 +59,6 @@
     "message": "\"En alakalı\" bölümünü gizle",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "\"En yeni\" bölümünü gizle",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "\"Shorts\" bölümünü gizle",
     "description": "Checkbox label"

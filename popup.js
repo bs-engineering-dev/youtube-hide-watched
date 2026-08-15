@@ -5,7 +5,6 @@ const display = document.getElementById('threshold-display');
 const maxAgeDays = document.getElementById('maxAgeDays');
 const maxAgeDisplay = document.getElementById('maxage-display');
 const hideMostRelevant = document.getElementById('hideMostRelevant');
-const hideLatest = document.getElementById('hideLatest');
 const hideShorts = document.getElementById('hideShorts');
 const hideScheduled = document.getElementById('hideScheduled');
 const hidePlayables = document.getElementById('hidePlayables');
@@ -49,14 +48,13 @@ function formatMaxAge(val) {
   }
 })();
 
-chrome.storage.sync.get({ enabled: true, threshold: 15, maxAgeDays: 0, hideMostRelevant: true, hideLatest: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }, (data) => {
+chrome.storage.sync.get({ enabled: true, threshold: 15, maxAgeDays: 0, hideMostRelevant: true, hideShorts: false, hideScheduled: false, hidePlayables: false, iconOnThumbnail: false }, (data) => {
   toggle.checked = data.enabled;
   threshold.value = data.threshold;
   display.textContent = data.threshold + '%';
   maxAgeDays.value = data.maxAgeDays;
   maxAgeDisplay.textContent = formatMaxAge(data.maxAgeDays);
   hideMostRelevant.checked = data.hideMostRelevant;
-  hideLatest.checked = data.hideLatest;
   hideShorts.checked = data.hideShorts;
   hideScheduled.checked = data.hideScheduled;
   hidePlayables.checked = data.hidePlayables;
@@ -109,11 +107,6 @@ maxAgeDays.addEventListener('change', () => {
 
 hideMostRelevant.addEventListener('change', () => {
   chrome.storage.sync.set({ hideMostRelevant: hideMostRelevant.checked });
-  flash(msg('saved'));
-});
-
-hideLatest.addEventListener('change', () => {
-  chrome.storage.sync.set({ hideLatest: hideLatest.checked });
   flash(msg('saved'));
 });
 

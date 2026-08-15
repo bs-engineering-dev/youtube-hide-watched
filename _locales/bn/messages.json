@@ -59,10 +59,6 @@
     "message": "\"সবচেয়ে প্রাসঙ্গিক\" বিভাগ লুকান",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "\"সর্বশেষ\" বিভাগ লুকান",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "\"Shorts\" বিভাগ লুকান",
     "description": "Checkbox label"

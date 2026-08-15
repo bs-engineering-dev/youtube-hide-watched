@@ -59,10 +59,6 @@
     "message": "\"అత్యంత సంబంధిత\" విభాగాన్ని దాచు",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "\"తాజా\" విభాగాన్ని దాచు",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "\"Shorts\" విభాగాన్ని దాచు",
     "description": "Checkbox label"

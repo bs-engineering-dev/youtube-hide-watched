@@ -10,7 +10,6 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 - **Mark All Watched** button in the popup to hide every visible video on the page at once
 - **Subscriptions max age** — hide videos older than a configurable number of days on the Subscriptions page, and automatically stop loading more once everything is past the cutoff
 - **Hide "Most relevant" section** on the Subscriptions page (optional, on by default)
-- **Hide "Latest" section** on the Subscriptions page (optional, on by default)
 - **Hide "Shorts" sections** on the home page and Subscriptions page (optional, off by default)
 - **Hide scheduled videos** — hide upcoming premieres and scheduled streams (optional, off by default)
 - **Undo support** — accidentally mark something? An undo card appears for 60 seconds
@@ -57,9 +56,8 @@ Found a bug or have a feature request? [Open an issue on GitHub](https://github.
 
 **Settings** (all accessible from the popup):
 - **Watch threshold** — Percentage of a video that must be watched before it's hidden (1%–100%)
-- **Subscriptions max age** — Hide videos older than 1–90 days on the Subscriptions page (0 = off). When enabled, infinite scroll stops once all loading videos are past the cutoff.
+- **Subscriptions max age** — Hide videos older than 1–90 days on the Subscriptions page (0 = off). When enabled, infinite scroll stops once all loading videos are past the cutoff. Does not apply to Shorts — see [Shorts caveat](#shorts-caveat).
 - **Hide "Most relevant"** — Toggle the "Most relevant" section on the Subscriptions page
-- **Hide "Latest"** — Toggle the "Latest" section on the Subscriptions page
 - **Hide "Shorts"** — Toggle Shorts sections on the home page and Subscriptions page
 - **Hide scheduled videos** — Hide upcoming premieres and scheduled live streams
 - **Clear cache** — Remove all manually marked videos
@@ -77,6 +75,8 @@ This extension works on desktop Chromium-based browsers: Chrome, Edge, Brave, He
 YouTube Shorts don't consistently display progress bars on their thumbnails, so the extension can't always auto-detect which Shorts you've watched. You can still manually mark Shorts as watched using the eye icon or the "Mark All Watched" button in the popup.
 
 On the Subscriptions Shorts tab (`/feed/subscriptions/shorts`), Shorts have no timestamp or progress metadata, so auto-hide by age and watch status are not available — only manual marking works there.
+
+**Subscriptions max age never applies to Shorts, anywhere.** YouTube renders a view count on Shorts but never an upload age, in any language, so the extension has no date to compare against. Shorts stay visible no matter how old they are or how low you set the cutoff — including Shorts appearing in the main Subscriptions feed, not just on the Shorts tab.
 
 ## How it works
 

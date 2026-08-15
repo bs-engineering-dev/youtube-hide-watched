@@ -59,10 +59,6 @@
     "message": "「関連性の高い順」セクションを非表示",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "「最新」セクションを非表示",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "「Shorts」セクションを非表示",
     "description": "Checkbox label"

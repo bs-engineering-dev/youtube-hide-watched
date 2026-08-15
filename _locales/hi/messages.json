@@ -59,10 +59,6 @@
     "message": "\"सबसे प्रासंगिक\" अनुभाग छुपाएँ",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "\"नवीनतम\" अनुभाग छुपाएँ",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "\"Shorts\" अनुभाग छुपाएँ",
     "description": "Checkbox label"

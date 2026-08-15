@@ -138,7 +138,6 @@ function screenshot2HTML() {
       </div>
       <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
         <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; cursor:pointer;"><input type="checkbox" checked style="width:14px; height:14px; accent-color:#c00;"> Hide "Most relevant" section</label>
-        <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; cursor:pointer;"><input type="checkbox" checked style="width:14px; height:14px; accent-color:#c00;"> Hide "Latest" section</label>
         <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; cursor:pointer;"><input type="checkbox" style="width:14px; height:14px;"> Hide "Shorts" section</label>
         <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; cursor:pointer;"><input type="checkbox" style="width:14px; height:14px;"> Hide scheduled videos</label>
         <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; cursor:pointer;"><input type="checkbox" style="width:14px; height:14px;"> Hide Playables</label>

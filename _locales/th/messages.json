@@ -59,10 +59,6 @@
     "message": "ซ่อนส่วน «เกี่ยวข้องมากที่สุด»",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "ซ่อนส่วน «ล่าสุด»",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "ซ่อนส่วน «Shorts»",
     "description": "Checkbox label"

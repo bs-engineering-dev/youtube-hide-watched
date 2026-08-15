@@ -59,10 +59,6 @@
     "message": "隐藏「最相关」板块",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "隐藏「最新」板块",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "隐藏「Shorts」板块",
     "description": "Checkbox label"

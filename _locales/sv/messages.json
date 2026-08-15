@@ -59,10 +59,6 @@
     "message": "Dölj \"Mest relevant\"-sektionen",
     "description": "Checkbox label"
   },
-  "hideLatest": {
-    "message": "Dölj \"Senaste\"-sektionen",
-    "description": "Checkbox label"
-  },
   "hideShorts": {
     "message": "Dölj \"Shorts\"-sektionen",
     "description": "Checkbox label"
