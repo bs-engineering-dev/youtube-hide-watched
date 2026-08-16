@@ -14,7 +14,7 @@ Used to send a message from the popup to the active YouTube tab when the user cl
 
 ### Host permissions (youtube.com content script match pattern)
 
-A content script matching *://*.youtube.com/* is required so the extension can read video thumbnail progress bars, hide watched videos, and inject "mark as watched" buttons directly on the page. This is the core functionality of the extension. No data is read from or sent to any other site, and no network requests are made.
+A content script matching *://*.youtube.com/* is required so the extension can read video thumbnail progress bars, hide watched videos, and inject "mark as watched" buttons directly on the page. On watch pages it additionally reads the player's current playback position, so that a video you watch disappears from feed pages already open in other tabs without needing a reload; nothing is hidden or altered on the watch page itself. This is the core functionality of the extension. No data is read from or sent to any other site, and no network requests are made.
 
 ### storage
 

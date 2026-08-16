@@ -12,6 +12,7 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 - **Hide "Most relevant" section** on the Subscriptions page (optional, on by default)
 - **Hide "Shorts" sections** on the home page and Subscriptions page (optional, off by default)
 - **Hide scheduled videos** — hide upcoming premieres and scheduled streams (optional, off by default)
+- **No refresh needed** — watch a video in another tab and it disappears from an already-open feed; the extension notes your progress on the watch page and every open feed tab updates itself
 - **Undo support** — accidentally mark something? An undo card appears for 60 seconds
 - **Dark mode** support — follows YouTube's theme
 
@@ -25,7 +26,8 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 | Channel streams (`/@channel/streams`) | Yes |
 | Shorts shelves on the above pages | Yes |
 | Subscriptions Shorts tab (`/feed/subscriptions/shorts`) | Manual marking only |
-| Watch page, Search, Playlists | No (not applicable) |
+| Watch page (`/watch`, `/shorts/…`) | Records your progress only — nothing is hidden or changed on the page |
+| Search, Playlists | No (not applicable) |
 
 ## Installation
 
@@ -81,6 +83,8 @@ On the Subscriptions Shorts tab (`/feed/subscriptions/shorts`), Shorts have no t
 ## How it works
 
 The extension reads YouTube's built-in progress bars on video thumbnails to determine what you've watched. It does not access your YouTube/Google account or watch history API — everything is detected from what's visible on the page.
+
+On a watch page it also reads the player's current position, so a video you watch is remembered without waiting for YouTube to redraw the feed. YouTube never updates an already-rendered feed, so without this a video watched in another tab stays visible until you reload. Nothing is hidden or altered on the watch page itself, and the position never leaves your browser.
 
 Manually marked videos are stored in Chrome's local storage. Your enabled/threshold/preference settings sync across devices via Chrome Sync.
 

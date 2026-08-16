@@ -16,6 +16,7 @@
   const SECTION_SELECTOR = 'ytd-rich-section-renderer, ytd-shelf-renderer';
   const DEBOUNCE_MS = 300;
   const UNDO_MS = 60000;
+  const WATCH_POLL_MS = 5000;
   const CACHE_EVICT_BYTES = 9_500_000;
   const CACHE_TARGET_BYTES = 7_000_000;
   const CACHE_CHECK_COUNT = 200_000;
@@ -28,6 +29,7 @@
   let scrollCutoff = false;
   let selfCacheWrite = false;
   let initialScanDone = false;
+  let watchInterval = null;
   const dismissed = new Map();
 
   // ── Locale patterns ──────────────────────────────────────────
@@ -168,6 +170,10 @@
 
     document.addEventListener('yt-navigate-finish', onNavigate);
     document.addEventListener('yt-page-data-updated', onNavigate);
+    // Closing a watch tab fires no yt-navigate event, so the last position would
+    // otherwise be lost. Best effort — the write may not flush before teardown,
+    // but the threshold crossing was already recorded by the poll.
+    window.addEventListener('pagehide', () => reportWatchProgress());
     chrome.storage.onChanged.addListener(onStorageChange);
     chrome.runtime.onMessage.addListener(onMessage);
 
@@ -187,18 +193,30 @@
     return location.pathname.startsWith('/feed/subscriptions');
   }
 
+  function isWatchPage() {
+    return /^\/watch\/?$/.test(location.pathname) || /^\/shorts\/[^/]+\/?$/.test(location.pathname);
+  }
+
   function onNavigate() {
     scrollCutoff = false;
     initialScanDone = false;
     dismissed.clear();
     removeAgeCutoffBanner();
+    // Flush the position of the video being left before the URL changes.
+    reportWatchProgress();
     if (isTargetPage()) {
+      stopWatchReporter();
       attachObserver();
       startDriftCheck();
       scheduleScan();
+    } else if (isWatchPage()) {
+      detachObserver();
+      stopDriftCheck();
+      startWatchReporter();
     } else {
       detachObserver();
       stopDriftCheck();
+      stopWatchReporter();
       cleanupDOM();
     }
   }
@@ -324,6 +342,84 @@
       chrome.storage.local.set({ cache });
       dismissed.set(id, pct);
     });
+  }
+
+  // ── Watch-page progress reporter ────────────────────────────
+  // The feed only learns "watched" from progress bars present at scan time, so a
+  // video watched on a watch page (especially in another tab) never reaches it —
+  // measured on a live feed: after watching 71% of a video, the open feed's
+  // thumbnail gained no progress bar at all, so there is nothing for scan() to
+  // observe. Writing to the cache here is the only mechanism; the existing
+  // chrome.storage.onChanged handler then rescans every open feed tab.
+
+  function watchPageVideoId() {
+    const m = location.pathname.match(/^\/shorts\/([^/?&#]+)/);
+    if (m) return m[1];
+    return new URLSearchParams(location.search).get('v');
+  }
+
+  // Returns percent watched, or -1 when it cannot be trusted.
+  function watchPagePercent() {
+    const player = document.querySelector('#movie_player');
+    // During an ad the <video> element IS the ad, with the ad's own short
+    // duration — polling it would mark the video watched seconds in.
+    if (player && player.classList.contains('ad-showing')) return -1;
+    const video = document.querySelector('#movie_player video');
+    if (!video) return -1;
+    const d = video.duration;
+    // Live streams report Infinity/NaN; percent watched is meaningless there.
+    if (!d || isNaN(d) || !isFinite(d)) return -1;
+    if (!video.currentTime) return -1;
+    return (video.currentTime / d) * 100;
+  }
+
+  // The stored percentage is the dedupe: the first crossing writes, and after
+  // that only a materially higher position does. Without this, onNavigate fires
+  // on every yt-page-data-updated (many times per watch page) and each poll
+  // would issue a storage write, which every open tab then reacts to.
+  const WATCH_REFINE_STEP = 10;
+
+  function reportWatchProgress() {
+    if (!config.enabled || !isWatchPage() || !isContextValid()) return;
+    const id = watchPageVideoId();
+    if (!id) return;
+
+    const pct = watchPagePercent();
+    if (pct <= 0) return;
+
+    const crossed = config.threshold <= 1 ? pct > 0 : pct >= config.threshold;
+    if (!crossed) return;
+
+    const entry = cache[id];
+    // A manual mark is a stronger statement than measured progress.
+    if (typeof entry === 'number') return;
+    const prev = entry ? entry.p : -1;
+    // Refine in steps so a long video costs a handful of writes, not one per
+    // poll. A higher stored percentage matters if the user later raises the
+    // threshold — p:16 would wrongly unhide a video watched to the end.
+    if (prev >= 0 && pct <= prev + WATCH_REFINE_STEP) return;
+
+    cache[id] = { t: Date.now(), p: pct };
+    selfCacheWrite = true;
+    chrome.storage.local.set({ cache });
+  }
+
+  function startWatchReporter() {
+    // Idempotent: the poll re-reads the id from the URL every tick, so it keeps
+    // working across SPA navigation between videos and Shorts swipes without
+    // being restarted.
+    if (watchInterval) return;
+    watchInterval = setInterval(() => {
+      if (!isContextValid()) { stopWatchReporter(); return; }
+      reportWatchProgress();
+    }, WATCH_POLL_MS);
+  }
+
+  function stopWatchReporter() {
+    if (watchInterval) {
+      clearInterval(watchInterval);
+      watchInterval = null;
+    }
   }
 
   function startDriftCheck() {

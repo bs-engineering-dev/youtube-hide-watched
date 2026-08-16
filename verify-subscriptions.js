@@ -24,6 +24,8 @@
 //   8. Whether the 2s drift checker settles or rescans forever, before and
 //      after infinite scroll
 //   9. Whether toggling the extension off actually restores the page
+//  10. Whether a video watched in ANOTHER TAB disappears from the feed without
+//      reloading it (the feed tab is never reloaded during that phase)
 //
 // A full per-renderer JSON dump is written to os.tmpdir() for later analysis.
 //
@@ -35,11 +37,13 @@
 // or stores your password. The login lives in a Chromium profile in os.tmpdir()
 // and is reused across runs unless you pass --fresh.
 //
-// The run is NOT unattended. It pauses and waits for Enter twice:
+// The run is NOT unattended. It pauses and waits for Enter three times:
 //   1. after the feed loads, so you can get it into the state you want measured
 //   2. to let you scroll the feed down BY HAND — programmatic scrolling does not
 //      reliably trigger YouTube's infinite scroll, so the "at scale" phase only
 //      measures anything if you grow the feed yourself
+//   3. to let a video play past your watch threshold in the watch tab that the
+//      last phase opens (skip any ad first)
 
 const { chromium } = require("playwright");
 const path = require("path");
@@ -57,6 +61,8 @@ const LAUNCH_ARGS = [
   "--no-first-run",
   "--disable-gpu",
   "--disable-blink-features=AutomationControlled",
+  // So the watch-propagation phase can actually start playback.
+  "--autoplay-policy=no-user-gesture-required",
 ];
 
 function waitForEnter(msg) {
@@ -69,6 +75,10 @@ function waitForEnter(msg) {
 // reachable from page.evaluate(). We bridge that with a custom DOM event: the
 // page dispatches "hw-diag", the content script answers by writing JSON onto
 // <html> dataset, which both worlds share.
+//
+// CAUTION: this is a template literal, so backslash escapes are consumed before
+// the code is written out — a regex \d silently becomes d in the emitted file.
+// Use [0-9] style classes here, never backslash shorthands.
 const DIAG_HOOK = `
   document.addEventListener('hw-diag', () => {
     const items = [...document.querySelectorAll(VIDEO_SELECTOR)].map((el) => {
@@ -97,6 +107,22 @@ const DIAG_HOOK = `
         btn: el.querySelector('.hw-mark-btn') ? 'thumbnail'
            : el.querySelector('.hw-mark-btn-short') ? 'metadata' : null,
         canMount: canMountMarkButton(el, id),
+        // Live/premiere detection. A live stream has no usable duration, so
+        // percentage-watched is meaningless and it must never be picked as the
+        // propagation test video. Structural signals first, then the badge-text
+        // trick checkInlinePreview() already uses: a real VOD carries a
+        // timestamp badge like "12:34"; LIVE/UPCOMING carry words instead, which
+        // makes the check locale-independent.
+        badges: [...el.querySelectorAll('.ytBadgeShapeText')].map((b) => b.textContent.trim()).slice(0, 4),
+        hasDurationBadge: [...el.querySelectorAll('.ytBadgeShapeText')]
+          .some((b) => /^[0-9][0-9:.]*$/.test(b.textContent.trim())),
+        // NOTE: there is no structural live signal in the modern lockup markup —
+        // probed against a live channel, LIVE and Upcoming items carry no
+        // overlay-style attribute and identical badge host classes. Only the
+        // badge TEXT differs. So "is this a playable VOD" is decided by
+        // hasDurationBadge above, which holds in any locale.
+        isVod: [...el.querySelectorAll('.ytBadgeShapeText')]
+          .some((b) => /^[0-9][0-9:.]*$/.test(b.textContent.trim())),
         // Where does this renderer actually live? A section toggle can only
         // hide videos that are INSIDE the section it matches.
         parentTag: el.parentElement ? el.parentElement.tagName : null,
@@ -404,6 +430,121 @@ function printCensus(c) {
   for (const [t, n] of c.topTags) console.log("    " + String(n).padStart(4) + "  " + t);
 }
 
+// ── Does a video watched elsewhere disappear without a reload? ──
+// The feed tab is deliberately NEVER reloaded here. That is the whole point:
+// a reload would hide the video regardless and prove nothing.
+async function checkWatchPropagation(browser, page, sw, diag) {
+  // A live stream has no usable duration, so percentage-watched is meaningless.
+  // Requiring a numeric duration badge excludes live, upcoming and premieres.
+  const eligible = (i) =>
+    i.id && !i.hidden && !i.manualHide && !i.watched && !i.isShort &&
+    !i.scheduled && i.isVod;
+  const candidate = diag.items.find(eligible);
+  if (!candidate) {
+    console.log("\n  no eligible test video — skipping");
+    console.log("    (need an unwatched, visible, non-Short VOD with a duration badge; " +
+                count(diag.items, (i) => !i.isVod) + " of " + diag.items.length +
+                " renderers had no duration badge — live/upcoming/premiere)");
+    return { skipped: "no candidate" };
+  }
+  if (!candidate.isVod) throw new Error("candidate selection let a non-VOD through");
+  const id = candidate.id;
+  console.log("\n  test video: " + id + "  " + JSON.stringify(candidate.title));
+
+  // Remember whether this id was already cached, so we can leave the user's
+  // cache exactly as we found it.
+  const wasCached = await sw.evaluate(
+    (vid) => new Promise((r) => chrome.storage.local.get({ cache: {} }, (d) => r(vid in d.cache))),
+    id
+  );
+
+  const watchTab = await browser.newPage();
+  await watchTab.goto("https://www.youtube.com/watch?v=" + id, { waitUntil: "domcontentloaded", timeout: 30000 });
+
+  // Belt and braces: feed badges can be stale, so confirm at the player itself
+  // that this is a finite-duration VOD before asking for a timed watch.
+  await watchTab.waitForTimeout(4000);
+  const kind = await watchTab.evaluate(() => {
+    const v = document.querySelector("#movie_player video");
+    const p = document.querySelector("#movie_player");
+    // .ytp-live-badge is present in the player chrome for EVERY video and is
+    // merely hidden on VODs, so its existence proves nothing — it must be
+    // tested for visibility. Finite duration is the authoritative signal.
+    const badge = document.querySelector(".ytp-live-badge");
+    return {
+      duration: v ? (Number.isFinite(v.duration) ? v.duration : String(v.duration)) : "no player",
+      liveClass: !!p?.classList.contains("ytp-live"),
+      liveBadgeVisible: !!badge && badge.getClientRects().length > 0,
+    };
+  });
+  if (kind.liveClass || kind.liveBadgeVisible || !Number.isFinite(kind.duration)) {
+    console.log("  !! this is a LIVE stream at the player (" + JSON.stringify(kind) + ")");
+    console.log("     percentage-watched is meaningless here — aborting this phase.");
+    await watchTab.close();
+    return { skipped: "live stream", id, kind };
+  }
+  console.log("  confirmed VOD, duration " + kind.duration + "s");
+
+  await waitForEnter(
+    "\n  A watch tab opened. Let it play past your watch threshold (skip any ad),\n" +
+    "  then come back here and press Enter. Do NOT touch the feed tab.\n"
+  );
+
+  // Report what playback actually reached — otherwise a paused player silently
+  // invalidates the whole result.
+  const playback = await watchTab.evaluate(() => {
+    const v = document.querySelector("#movie_player video");
+    const p = document.querySelector("#movie_player");
+    if (!v) return null;
+    return {
+      currentTime: +v.currentTime.toFixed(1),
+      duration: Number.isFinite(v.duration) ? +v.duration.toFixed(1) : String(v.duration),
+      pct: Number.isFinite(v.duration) && v.duration > 0 ? +((v.currentTime / v.duration) * 100).toFixed(1) : null,
+      paused: v.paused,
+      adShowing: !!p?.classList.contains("ad-showing"),
+    };
+  });
+  console.log("  playback reached: " + JSON.stringify(playback));
+  if (!playback || playback.pct === null || playback.currentTime === 0) {
+    console.log("  !! the player never advanced — this result is inconclusive, not a failure");
+  }
+  if (playback?.adShowing) {
+    console.log("  !! an ad was showing at sample time — currentTime is the AD's, not the video's");
+  }
+
+  await watchTab.close();
+  await page.waitForTimeout(3000); // scan debounce + a drift tick
+
+  const after = await readDiag(page);
+  const item = after.items.find((i) => i.id === id);
+  const nowCached = await sw.evaluate(
+    (vid) => new Promise((r) => chrome.storage.local.get({ cache: {} }, (d) => r(vid in d.cache))),
+    id
+  );
+
+  const hidden = !!item?.hidden;
+  console.log("\n  ── result (feed tab was NOT reloaded) ──");
+  console.log("     video still present in feed: " + !!item);
+  console.log("     cached before / after:       " + wasCached + " / " + nowCached);
+  console.log("     progress bar now in feed DOM:" + (item ? item.progressDom : "n/a"));
+  console.log("     extension considers watched: " + (item ? item.watched : "n/a"));
+  console.log("     HIDDEN WITHOUT RELOAD:       " + hidden + (hidden ? "  ✓" : "  ✗ (this is the gap)"));
+
+  // Restore the cache if we introduced this entry.
+  if (!wasCached && nowCached) {
+    await sw.evaluate(
+      (vid) => new Promise((r) => chrome.storage.local.get({ cache: {} }, (d) => {
+        delete d.cache[vid];
+        chrome.storage.local.set({ cache: d.cache }, r);
+      })),
+      id
+    );
+    console.log("     (test entry removed from your cache)");
+  }
+
+  return { id, title: candidate.title, wasCached, nowCached, playback, hiddenWithoutReload: hidden, item };
+}
+
 (async () => {
   const fresh = process.argv.includes("--fresh");
 
@@ -514,6 +655,14 @@ function printCensus(c) {
   dump.disabled = off;
 
   await sw.evaluate(() => new Promise((r) => chrome.storage.sync.set({ enabled: true }, r)));
+  await page.waitForTimeout(2000);
+
+  // ── Watch propagation (runs last: it opens a second tab) ─
+  console.log("\n════════ WATCH PROPAGATION ════════");
+  console.log("  Does a video watched in ANOTHER TAB disappear from the feed");
+  console.log("  without reloading it? Today this is expected to FAIL — nothing");
+  console.log("  writes to the cache from a watch page.");
+  dump.watchPropagation = await checkWatchPropagation(browser, page, sw, await readDiag(page));
 
   const out = path.join(os.tmpdir(), "subs-diagnostic-" + Date.now() + ".json");
   fs.writeFileSync(out, JSON.stringify(dump, null, 2));

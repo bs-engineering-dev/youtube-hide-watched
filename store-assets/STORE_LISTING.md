@@ -16,10 +16,14 @@ Tired of scrolling past videos you've already seen? This extension automatically
 
 The extension detects YouTube's built-in progress bars on video thumbnails. If a video has any watch progress, it gets hidden. No account access required — it works entirely from what's visible on the page.
 
+While you are watching a video it also notes how far through you are, so the video disappears from feeds you already have open in other tabs. Nothing is hidden or changed on the watch page itself, and nothing ever leaves your browser.
+
 **Where it works**
 - YouTube home page
 - Subscriptions feed
 - Channel pages (videos, streams, and Shorts)
+
+(On watch pages the extension only notes your playback position — it never hides or changes anything there.)
 
 **Features**
 - One-click toggle to turn hiding on or off
@@ -29,6 +33,7 @@ The extension detects YouTube's built-in progress bars on video thumbnails. If a
 - Subscriptions max age — hide videos older than a set number of days and stop loading more once everything is past the cutoff (does not apply to Shorts)
 - Optionally hide the "Most relevant" section on Subscriptions
 - Hide scheduled videos — upcoming premieres and scheduled streams can be hidden
+- No refresh needed — videos you watch vanish from feeds already open in other tabs
 - Undo support when you accidentally mark a video
 - Works with YouTube's dark mode
 - Localized in 20 languages (translations are in beta — report issues on GitHub)
