@@ -18,6 +18,8 @@ The extension detects YouTube's built-in progress bars on video thumbnails. If a
 
 While you are watching a video it also notes how far through you are, so the video disappears from feeds you already have open in other tabs. Nothing is hidden or changed on the watch page itself, and nothing ever leaves your browser.
 
+This is what makes Shorts work too. Shorts rarely show a progress bar on their thumbnail, so playing one is how the extension learns you have seen it — and because Shorts loop instead of ending, it remembers the furthest point you reached rather than wherever the player stopped.
+
 **Where it works**
 - YouTube home page
 - Subscriptions feed
@@ -34,6 +36,7 @@ While you are watching a video it also notes how far through you are, so the vid
 - Optionally hide the "Most relevant" section on Subscriptions
 - Hide scheduled videos — upcoming premieres and scheduled streams can be hidden
 - No refresh needed — videos you watch vanish from feeds already open in other tabs
+- Shorts you play are remembered, even though their thumbnails show no progress bar
 - Undo support when you accidentally mark a video
 - Works with YouTube's dark mode
 - Localized in 20 languages (translations are in beta — report issues on GitHub)
@@ -54,9 +57,11 @@ Works on desktop Chromium-based browsers: Chrome, Edge, Brave, Helium, Opera, an
 
 **A note about Shorts**
 
-YouTube Shorts don't consistently show progress bars on their thumbnails, so auto-detection of watched Shorts is limited. You can still mark Shorts as watched manually using the eye icon or the "Mark All Watched" button. On the Subscriptions Shorts tab, only manual marking is available — Shorts there have no timestamp or watch progress metadata for the extension to read.
+Shorts you play with the extension installed are hidden just like regular videos — including on the Subscriptions Shorts tab. Because Shorts loop rather than end, the extension remembers the furthest point you reached, so one you watched all the way through stays hidden even if it has looped back to the start by the time you swipe away.
 
-For the same reason, the Subscriptions max age setting does not apply to Shorts. YouTube shows a view count on Shorts but never an upload age, so the extension has no date to compare against and Shorts stay visible regardless of how old they are.
+What it cannot do is detect a Short you watched *before* installing the extension, or on another device: YouTube rarely draws a progress bar on a Short's thumbnail, so there is nothing on the page to read. Mark those manually with the eye icon or the "Mark All Watched" button.
+
+Separately, the Subscriptions max age setting does not apply to Shorts. YouTube shows a view count on Shorts but never an upload age, so the extension has no date to compare against and Shorts stay visible regardless of how old they are.
 
 **Support & feedback**
 

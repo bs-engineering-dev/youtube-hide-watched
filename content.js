@@ -16,7 +16,14 @@
   const SECTION_SELECTOR = 'ytd-rich-section-renderer, ytd-shelf-renderer';
   const DEBOUNCE_MS = 300;
   const UNDO_MS = 60000;
-  const WATCH_POLL_MS = 5000;
+  // A fallback, not the driver: timeupdate does the real work. Shorts reuse one
+  // <video> across swipes (measured: a single bind served two consecutive
+  // Shorts), so this is not needed to follow navigation — its remaining job is
+  // the FIRST bind, because at document_idle the player often does not exist
+  // yet. Kept short so a Short opened cold is tracked from near its start; the
+  // tick is two querySelectors and one sample, and writes are rate-limited
+  // independently.
+  const WATCH_POLL_MS = 1000;
   const CACHE_EVICT_BYTES = 9_500_000;
   const CACHE_TARGET_BYTES = 7_000_000;
   const CACHE_CHECK_COUNT = 200_000;
@@ -173,7 +180,7 @@
     // Closing a watch tab fires no yt-navigate event, so the last position would
     // otherwise be lost. Best effort — the write may not flush before teardown,
     // but the threshold crossing was already recorded by the poll.
-    window.addEventListener('pagehide', () => reportWatchProgress());
+    window.addEventListener('pagehide', () => flushWatchProgress());
     chrome.storage.onChanged.addListener(onStorageChange);
     chrome.runtime.onMessage.addListener(onMessage);
 
@@ -193,8 +200,12 @@
     return location.pathname.startsWith('/feed/subscriptions');
   }
 
+  function isShortsWatchPage() {
+    return /^\/shorts\/[^/]+\/?$/.test(location.pathname);
+  }
+
   function isWatchPage() {
-    return /^\/watch\/?$/.test(location.pathname) || /^\/shorts\/[^/]+\/?$/.test(location.pathname);
+    return /^\/watch\/?$/.test(location.pathname) || isShortsWatchPage();
   }
 
   function onNavigate() {
@@ -202,8 +213,9 @@
     initialScanDone = false;
     dismissed.clear();
     removeAgeCutoffBanner();
-    // Flush the position of the video being left before the URL changes.
-    reportWatchProgress();
+    // Credit the video being left. This reads the accumulator, not the URL, so
+    // it still names the outgoing video even though the URL already changed.
+    flushWatchProgress();
     if (isTargetPage()) {
       stopWatchReporter();
       attachObserver();
@@ -213,6 +225,9 @@
       detachObserver();
       stopDriftCheck();
       startWatchReporter();
+      // Bind to the new player now rather than waiting up to a poll interval —
+      // a 15s Short can be half over by then.
+      syncWatchTracker();
     } else {
       detachObserver();
       stopDriftCheck();
@@ -358,14 +373,33 @@
     return new URLSearchParams(location.search).get('v');
   }
 
+  // ORDER IS LOAD-BEARING. A signed-in Shorts page carries BOTH players at once:
+  // #shorts-player, holding the real video, and #movie_player, holding a decoy
+  // that is permanently paused at t=0 with duration NaN, readyState 0 and no
+  // source. Querying #movie_player first therefore finds an element, reads NaN
+  // for duration, and returns -1 forever — the whole feature silently does
+  // nothing, which is exactly what shipped. Measured on a live signed-in Short
+  // via verify-shorts.js.
+  //
+  // #movie_player stays as the fallback because it is the real player on /watch.
+  // Not worth matching ytd-reel-video-renderer[is-active]: that attribute was
+  // absent on every sample (activeReels: 0), and only one #shorts-player exists
+  // at a time, so it would be a branch that never fires.
+  function watchPlayerVideo() {
+    return document.querySelector('#shorts-player video')
+        || document.querySelector('#movie_player video');
+  }
+
   // Returns percent watched, or -1 when it cannot be trusted.
   function watchPagePercent() {
-    const player = document.querySelector('#movie_player');
-    // During an ad the <video> element IS the ad, with the ad's own short
-    // duration — polling it would mark the video watched seconds in.
-    if (player && player.classList.contains('ad-showing')) return -1;
-    const video = document.querySelector('#movie_player video');
+    const video = watchPlayerVideo();
     if (!video) return -1;
+    // During an ad the <video> element IS the ad, with the ad's own short
+    // duration — polling it would mark the video watched seconds in. Ask the
+    // player that owns this video, not a fixed id that may not be the one
+    // playing.
+    const player = video.closest('.html5-video-player');
+    if (player && player.classList.contains('ad-showing')) return -1;
     const d = video.duration;
     // Live streams report Infinity/NaN; percent watched is meaningless there.
     if (!d || isNaN(d) || !isFinite(d)) return -1;
@@ -379,12 +413,110 @@
   // would issue a storage write, which every open tab then reacts to.
   const WATCH_REFINE_STEP = 10;
 
-  function reportWatchProgress() {
-    if (!config.enabled || !isWatchPage() || !isContextValid()) return;
+  // Shorts loop, so position is not monotonic and a 5s poll cannot see a
+  // crossing at all: a 15s Short sampled every 5s reads 33%, 66%, then 0% again
+  // forever, never the 80% the threshold wants. So progress is accumulated as a
+  // high-water mark driven by timeupdate (~4Hz) rather than sampled, and a lap
+  // of the loop is recorded as a complete view no matter where the needle sits
+  // when the user swipes away.
+  //
+  // A lap is "was near the end, now near the start". Deliberately NOT suppressed
+  // by seeking/seeked: YouTube may implement the loop as a seek to 0, which
+  // would make those events swallow the very signal being looked for. The only
+  // false positive is a manual scrub from near-end back to the start, which
+  // implies a high-water mark past the threshold anyway.
+  const LAP_END_PCT = 80;
+  const LAP_START_PCT = 25;
+  const WATCH_WRITE_MIN_MS = 2000;
+  let watchLastWriteAt = 0;
+
+  let watchVideoEl = null;
+  let watchTrackedId = null;
+  let watchMaxPct = 0;
+  let watchLastPct = -1;
+  let watchLapped = false;
+  // Shorts always start at 0, so a high first reading means the outgoing video's
+  // element is still mounted under the new URL. Ignore until playback is
+  // genuinely at the start, or the swiped-past Short's position gets credited to
+  // the Short just swiped to.
+  let watchAwaitingStart = false;
+
+  function resetWatchAccumulator(id) {
+    // Only guard against staleness when displacing another tracked video — that
+    // is the case where the old element can still be mounted. Landing on a
+    // Short cold has no outgoing video to confuse us, and demanding a start
+    // there would throw away the whole first pass whenever the poll binds late.
+    const displacing = watchTrackedId !== null && id !== null;
+    watchTrackedId = id;
+    watchMaxPct = 0;
+    watchLastPct = -1;
+    watchLapped = false;
+    watchAwaitingStart = displacing && isShortsWatchPage();
+  }
+
+  // Binds to whichever <video> the player currently owns. Idempotent, and cheap
+  // enough to call from the poll as a safety net for element swaps.
+  function syncWatchTracker() {
+    const el = isWatchPage() ? watchPlayerVideo() : null;
+    if (el === watchVideoEl) return;
+    if (watchVideoEl) {
+      watchVideoEl.removeEventListener('timeupdate', sampleWatchProgress);
+      watchVideoEl.removeEventListener('ended', onWatchEnded);
+    }
+    watchVideoEl = el;
+    if (!el) return;
+    el.addEventListener('timeupdate', sampleWatchProgress);
+    // Never fires on Shorts: they play with video.loop = true (measured), and
+    // the loop attribute suppresses 'ended' entirely. That is precisely why the
+    // lap heuristic exists rather than this listener. Kept for /watch, where a
+    // video really does end.
+    el.addEventListener('ended', onWatchEnded);
+  }
+
+  function onWatchEnded() {
+    if (watchTrackedId && !watchAwaitingStart) {
+      watchLapped = true;
+      writeWatchProgress(true);
+    }
+  }
+
+  // Folds the player's current position into the accumulator for the id in the
+  // URL, switching accumulators (and crediting the old id) when it changes.
+  function sampleWatchProgress() {
+    if (!config.enabled || !isContextValid()) return;
     const id = watchPageVideoId();
     if (!id) return;
+    if (id !== watchTrackedId) {
+      // Credit the outgoing id before the accumulator is reused. Must be the
+      // bare write, not flushWatchProgress() — that re-enters this function.
+      writeWatchProgress();
+      resetWatchAccumulator(id);
+    }
 
     const pct = watchPagePercent();
+    if (pct < 0) return;
+
+    if (watchAwaitingStart) {
+      if (pct > LAP_START_PCT) return;
+      watchAwaitingStart = false;
+    }
+    if (watchLastPct >= LAP_END_PCT && pct <= LAP_START_PCT) watchLapped = true;
+    watchLastPct = pct;
+    if (pct > watchMaxPct) watchMaxPct = pct;
+
+    writeWatchProgress();
+  }
+
+  // Writes the accumulator out. Safe to call at any time — it names the tracked
+  // id, never the URL, so it stays correct after a navigation. `force` skips the
+  // rate limit for the last write before a video is left.
+  function writeWatchProgress(force) {
+    if (!config.enabled || !isContextValid()) return;
+    const id = watchTrackedId;
+    if (!id) return;
+
+    // A completed lap is a full view regardless of where playback sits now.
+    const pct = watchLapped ? 100 : watchMaxPct;
     if (pct <= 0) return;
 
     const crossed = config.threshold <= 1 ? pct > 0 : pct >= config.threshold;
@@ -395,23 +527,38 @@
     if (typeof entry === 'number') return;
     const prev = entry ? entry.p : -1;
     // Refine in steps so a long video costs a handful of writes, not one per
-    // poll. A higher stored percentage matters if the user later raises the
-    // threshold — p:16 would wrongly unhide a video watched to the end.
-    if (prev >= 0 && pct <= prev + WATCH_REFINE_STEP) return;
+    // timeupdate. A higher stored percentage matters if the user later raises
+    // the threshold — p:16 would wrongly unhide a video watched to the end.
+    // A lap always earns its write, so a Short that looped at p:95 still
+    // records the 100 that no later threshold can undo.
+    const refines = prev < 0 || pct > prev + WATCH_REFINE_STEP || (pct >= 100 && prev < 100);
+    if (!refines) return;
+    // The percentage ladder alone paced writes fine at one poll per 5s, but
+    // timeupdate runs ~4Hz: a 15s Short would climb the whole ladder in one
+    // pass and rewrite the entire cache — up to 7MB — nine times in fifteen
+    // seconds, broadcasting a rescan to every open feed tab each time.
+    if (!force && Date.now() - watchLastWriteAt < WATCH_WRITE_MIN_MS) return;
 
+    watchLastWriteAt = Date.now();
     cache[id] = { t: Date.now(), p: pct };
     selfCacheWrite = true;
     chrome.storage.local.set({ cache });
   }
 
+  function flushWatchProgress() {
+    sampleWatchProgress();
+    writeWatchProgress(true);
+  }
+
   function startWatchReporter() {
-    // Idempotent: the poll re-reads the id from the URL every tick, so it keeps
-    // working across SPA navigation between videos and Shorts swipes without
-    // being restarted.
+    // Idempotent. timeupdate does the real work; the poll only rebinds the
+    // tracker when the player swaps its <video> out, and keeps long videos
+    // recorded if timeupdate is throttled in a background tab.
     if (watchInterval) return;
     watchInterval = setInterval(() => {
       if (!isContextValid()) { stopWatchReporter(); return; }
-      reportWatchProgress();
+      syncWatchTracker();
+      sampleWatchProgress();
     }, WATCH_POLL_MS);
   }
 
@@ -420,6 +567,8 @@
       clearInterval(watchInterval);
       watchInterval = null;
     }
+    syncWatchTracker();
+    resetWatchAccumulator(null);
   }
 
   function startDriftCheck() {

@@ -13,6 +13,7 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 - **Hide "Shorts" sections** on the home page and Subscriptions page (optional, off by default)
 - **Hide scheduled videos** — hide upcoming premieres and scheduled streams (optional, off by default)
 - **No refresh needed** — watch a video in another tab and it disappears from an already-open feed; the extension notes your progress on the watch page and every open feed tab updates itself
+- **Shorts you watch are remembered** — playing a Short marks it watched even though its thumbnail never grows a progress bar, and watching one all the way through counts as fully watched no matter where it loops back to
 - **Undo support** — accidentally mark something? An undo card appears for 60 seconds
 - **Dark mode** support — follows YouTube's theme
 
@@ -25,7 +26,7 @@ A Chrome extension that hides videos you've already watched from YouTube, so you
 | Channel videos (`/@channel`, `/@channel/videos`) | Yes |
 | Channel streams (`/@channel/streams`) | Yes |
 | Shorts shelves on the above pages | Yes |
-| Subscriptions Shorts tab (`/feed/subscriptions/shorts`) | Manual marking only |
+| Subscriptions Shorts tab (`/feed/subscriptions/shorts`) | Manual marking, plus Shorts you've played |
 | Watch page (`/watch`, `/shorts/…`) | Records your progress only — nothing is hidden or changed on the page |
 | Search, Playlists | No (not applicable) |
 
@@ -74,9 +75,11 @@ This extension works on desktop Chromium-based browsers: Chrome, Edge, Brave, He
 
 ## Shorts caveat
 
-YouTube Shorts don't consistently display progress bars on their thumbnails, so the extension can't always auto-detect which Shorts you've watched. You can still manually mark Shorts as watched using the eye icon or the "Mark All Watched" button in the popup.
+YouTube Shorts don't consistently display progress bars on their thumbnails, so a Short you watched before installing the extension — or watched on another device — can't be detected from the feed alone. You can always mark those manually with the eye icon or the "Mark All Watched" button.
 
-On the Subscriptions Shorts tab (`/feed/subscriptions/shorts`), Shorts have no timestamp or progress metadata, so auto-hide by age and watch status are not available — only manual marking works there.
+**Shorts you play with the extension installed are remembered.** Watching one past your threshold records it, and it disappears from your feeds without a reload, exactly like a regular video. Because Shorts loop, the extension tracks the furthest point you reached rather than wherever the player happens to be sitting — so a Short you watched all the way through stays hidden even if it has looped back around to the beginning by the time you swipe away.
+
+This also covers the Subscriptions Shorts tab (`/feed/subscriptions/shorts`): Shorts you've played are hidden there too. Hiding by *age* is still unavailable on that tab, and everywhere else — see below.
 
 **Subscriptions max age never applies to Shorts, anywhere.** YouTube renders a view count on Shorts but never an upload age, in any language, so the extension has no date to compare against. Shorts stay visible no matter how old they are or how low you set the cutoff — including Shorts appearing in the main Subscriptions feed, not just on the Shorts tab.
 
@@ -85,6 +88,8 @@ On the Subscriptions Shorts tab (`/feed/subscriptions/shorts`), Shorts have no t
 The extension reads YouTube's built-in progress bars on video thumbnails to determine what you've watched. It does not access your YouTube/Google account or watch history API — everything is detected from what's visible on the page.
 
 On a watch page it also reads the player's current position, so a video you watch is remembered without waiting for YouTube to redraw the feed. YouTube never updates an already-rendered feed, so without this a video watched in another tab stays visible until you reload. Nothing is hidden or altered on the watch page itself, and the position never leaves your browser.
+
+This is also how Shorts get detected, since their thumbnails often carry no progress bar at all. Shorts loop rather than ending, so the extension records the furthest point you reached and treats a completed lap as fully watched — otherwise a Short you watched three times could be read as barely started.
 
 Manually marked videos are stored in Chrome's local storage. Your enabled/threshold/preference settings sync across devices via Chrome Sync.
 
